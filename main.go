@@ -1,34 +1,98 @@
 package main
 
 import (
+	"encoding/json"
 	"flag"
+	"fmt"
 	"log"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"time"
 
-	"github.com/iamkirkbater/osd-readiness-spike/healthchecks"
 	osconfig "github.com/openshift/client-go/config/clientset/versioned"
 	"k8s.io/client-go/rest"
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+type silenceRequest struct {
+	Matchers  []matcher `json:"matchers"`
+	StartsAt  string    `json:"startsAt"`
+	EndsAt    string    `json:"endsAt"`
+	CreatedBy string    `json:"createdBy"`
+	Comment   string    `json:"comment"`
+}
+
+type matcher struct {
+	Name    string `json:"name"`
+	Value   string `json:"value"`
+	IsRegex bool   `json:"isRegex"`
+}
+
+type silenceResponse struct {
+	ID string `json:"silenceID"`
+}
+
 func main() {
-	clientset, err := getClientSet()
-	if err != nil {
-		panic(err.Error())
-	}
-
 	// Create the Silence
+	now := time.Now().UTC()
+	end := now.Add(1 * time.Hour)
 
-	// Run the healthchecks
-	if check, err := healthchecks.CheckCVOReadiness(clientset.ConfigV1()); !check || err != nil {
-		log.Printf("Failed")
+	allMatcher := matcher{}
+	allMatcher.Name = "alertName"
+	allMatcher.Value = "/*/"
+	allMatcher.IsRegex = true
+
+	silenceBody := silenceRequest{}
+	silenceBody.Matchers = []matcher{allMatcher}
+	silenceBody.StartsAt = now.Format(time.RFC3339)
+	silenceBody.EndsAt = end.Format(time.RFC3339)
+	silenceBody.CreatedBy = "OSD Cluster Readiness Job"
+	silenceBody.Comment = "Created By the Cluster Readiness Job to silence any alerts during normal provisioning"
+
+	silenceJSON, err := json.Marshal(silenceBody)
+	if err != nil {
+		log.Fatal(fmt.Sprintf("There was an error marshalling JSON: %v", silenceJSON))
 	}
-	time.sleep(10 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
-	log.Println("Success")
-	// Once healthchecks return successfully, remove the silence
 
+	var silenceID string
+
+	for {
+		// Attempt to run once every 30 seconds until this succeeds
+		// to account for if the alertmanager is not ready before
+		// we start trying to silence it.
+		silenceCmd := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", "localhost:9093/api/v2/silences", "--silent", "-X", "POST", "-H", "Content-Type: application/json", "--data", string(silenceJSON))
+		silenceCmd.Stderr = os.Stderr
+		resp, err := silenceCmd.Output()
+		if err != nil {
+			log.Printf("Silence Failed. %v", err)
+			time.Sleep(30 * time.Second)
+			continue
+		}
+		var silenceResp silenceResponse
+		e := json.Unmarshal(resp, &silenceResp)
+		if e != nil {
+			log.Fatal("There was an error unmarshalling the silence response", e)
+		}
+		silenceID = silenceResp.ID
+		break
+	}
+
+	log.Printf("Silence Created with ID %s. Beginning Healthchecks.", silenceID)
+	time.Sleep(30 * time.Second) // TODO: Remove this and do loop thru actual healthchecks
+	log.Println("Healthchecks Succeeded.  Removing Silence.")
+
+	for i := 0; i < 5; i++ {
+		// Attempt up to 5 times to unsilence the cluster
+		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
+		err := unsilenceCommand.Run()
+		if err != nil {
+			log.Printf("Unsilence Failed. %v", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		break
+	}
 }
 
 func homeDir() string {

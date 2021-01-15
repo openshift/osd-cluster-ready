@@ -5,14 +5,14 @@ metadata:
     namespace: openshift-monitoring
 spec:
     activeDeadlineSeconds: 3900 # 1 hour for the silence, 5 minutes for processing/data completion
-    backoffLimit: 1
+    backoffLimit: 0
     template:
         metadata:
             name: osd-cluster-ready
         spec:
             containers:
             - name: osd-cluster-ready
-              image: quay.io/openshift-pipeline/openshift-cli
-              command: ["/bin/sh", "echo hello world'"]
+              image: quay.io/kbater/openshift-cli
+              command: ["/root/main"]
             restartPolicy: Never
             serviceAccountName: osd-cluster-ready
