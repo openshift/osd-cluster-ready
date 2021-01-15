@@ -39,7 +39,7 @@ func main() {
 	end := now.Add(1 * time.Hour)
 
 	allMatcher := matcher{}
-	allMatcher.Name = "alertName"
+	allMatcher.Name = "alertname"
 	allMatcher.Value = "/*/"
 	allMatcher.IsRegex = true
 
