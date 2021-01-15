@@ -16,6 +16,6 @@ Deploy each of the jobs in alpha/numeric order in the deploy folder.
 
 # TO DO
 
-[ ] Skip the job if the cluster is older than 1 hour
-[ ] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
-[ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.
+[ ] Skip the job if the cluster is older than 1 hour  
+[ ] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability  
+[ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.  
