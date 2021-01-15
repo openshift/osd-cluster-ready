@@ -79,7 +79,7 @@ func main() {
 	}
 
 	log.Printf("Silence Created with ID %s. Beginning Healthchecks.", silenceID)
-	time.Sleep(30 * time.Second) // TODO: Remove this and do loop thru actual healthchecks
+	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
 	log.Println("Healthchecks Succeeded.  Removing Silence.")
 
 	for i := 0; i < 5; i++ {
