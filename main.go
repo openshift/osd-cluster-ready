@@ -8,6 +8,8 @@ import (
 	"os"
 	"os/exec"
 	"path/filepath"
+	"strconv"
+	"strings"
 	"time"
 
 	osconfig "github.com/openshift/client-go/config/clientset/versioned"
@@ -34,6 +36,37 @@ type silenceResponse struct {
 }
 
 func main() {
+	var respString string
+
+	for i := 1; i <= 300; i++ { // try once a second or so for 5 minutes-ish
+		ex := "oc exec -n openshift-monitoring prometheus-k8s-0 -c prometheus -- curl localhost:9090/api/v1/query --silent --data-urlencode 'query=cluster_version' | jq -r '.data.result[] | select(.metric.type==\"initial\") | .value[1]'"
+		promCmd := exec.Command("bash", "-c", ex)
+		promCmd.Stderr = os.Stderr
+		resp, err := promCmd.Output()
+		if err != nil {
+			log.Printf("Attempt %d to query for cluster age failed. %v", i, err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		respString = string(resp)
+	}
+	respTrimmed := strings.TrimSuffix(respString, "\n")
+	clusterInitSec, err := strconv.ParseInt(respTrimmed, 10, 64)
+	if err != nil {
+		log.Printf("Error casting Epoch time to int. %s\nErr: %v", respString, err)
+		os.Exit(1)
+	}
+
+	clusterInit := time.Unix(clusterInitSec, 0)
+	oneHourAgo := time.Now().Add(-1 * time.Hour)
+	if clusterInit.Before(oneHourAgo) {
+		log.Printf("Cluster created more than 1 hour ago.  Exiting Cleanly.")
+		os.Exit(0)
+	}
+	run_silence()
+}
+
+func run_silence() {
 	// Create the Silence
 	now := time.Now().UTC()
 	end := now.Add(1 * time.Hour)
