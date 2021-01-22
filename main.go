@@ -17,12 +17,20 @@ import (
 	"k8s.io/client-go/tools/clientcmd"
 )
 
+const createdBy = "OSD Cluster Readiness Job"
+
 type silenceRequest struct {
-	Matchers  []matcher `json:"matchers"`
-	StartsAt  string    `json:"startsAt"`
-	EndsAt    string    `json:"endsAt"`
-	CreatedBy string    `json:"createdBy"`
-	Comment   string    `json:"comment"`
+	ID        string       `json:"id"`
+	Status    silenceState `json:"status"`
+	Matchers  []matcher    `json:"matchers"`
+	StartsAt  string       `json:"startsAt"`
+	EndsAt    string       `json:"endsAt"`
+	CreatedBy string       `json:"createdBy"`
+	Comment   string       `json:"comment"`
+}
+
+type silenceState struct {
+	State string `json:"state"`
 }
 
 type matcher struct {
@@ -30,6 +38,8 @@ type matcher struct {
 	Value   string `json:"value"`
 	IsRegex bool   `json:"isRegex"`
 }
+
+type getSilenceResponse []*silenceRequest
 
 type silenceResponse struct {
 	ID string `json:"silenceID"`
@@ -46,12 +56,18 @@ func main() {
 		os.Exit(0)
 	}
 
-	silenceID, err := createSilence()
+	silenceID, err := checkForExistingSilence()
 	if err != nil {
 		log.Fatal(err)
 	}
+	if silenceID == "" {
+		silenceID, err = createSilence()
+		if err != nil {
+			log.Fatal(err)
+		}
+	}
 
-	log.Printf("Silence Created with ID %s. Beginning Healthchecks.", silenceID)
+	log.Println("Beginning Healthchecks.")
 	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
 	log.Println("Healthchecks Succeeded.  Removing Silence.")
 
@@ -87,6 +103,47 @@ func getClusterCreationTime() (time.Time, error) {
 	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
 }
 
+func checkForExistingSilence() (string, error) {
+	for i := 1; i <= 300; i++ { // try once a second or so for 5-ish minutes
+		cmdstr := "oc exec -n openshift-monitoring alertmanager-main-0 -c alertmanager -- curl --silent localhost:9093/api/v2/silences -X GET"
+		silenceGetCmd := exec.Command("bash", "-c", cmdstr)
+		silenceGetCmd.Stderr = os.Stderr
+		resp, err := silenceGetCmd.Output()
+		if err != nil {
+			log.Printf("Attempt %d to query for existing silences failed. %v", i, err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		var silences getSilenceResponse
+		err = json.Unmarshal(resp, &silences)
+		if err != nil {
+			log.Printf("There was an error unmarshalling get silence response")
+			return "", err
+		}
+		if len(silences) == 0 {
+			log.Printf("No Silences Present")
+			return "", nil
+		}
+
+		for _, silence := range silences {
+			if silence.CreatedBy != createdBy {
+				continue
+			}
+			if silence.Status.State != "active" {
+				log.Printf("Silence is not active.")
+				continue
+			}
+			log.Printf("Found silence created by job: %s", silence.ID)
+			return silence.ID, nil
+		}
+
+		log.Printf("No silences created by job found.")
+		return "", nil
+	}
+
+	return "", fmt.Errorf("unable to get a list of existing silences")
+}
+
 func createSilence() (string, error) {
 	// Create the Silence
 	now := time.Now().UTC()
@@ -101,7 +158,7 @@ func createSilence() (string, error) {
 	silenceBody.Matchers = []matcher{allMatcher}
 	silenceBody.StartsAt = now.Format(time.RFC3339)
 	silenceBody.EndsAt = end.Format(time.RFC3339)
-	silenceBody.CreatedBy = "OSD Cluster Readiness Job"
+	silenceBody.CreatedBy = createdBy
 	silenceBody.Comment = "Created By the Cluster Readiness Job to silence any alerts during normal provisioning"
 
 	silenceJSON, err := json.Marshal(silenceBody)
@@ -126,6 +183,7 @@ func createSilence() (string, error) {
 		if e != nil {
 			return "", fmt.Errorf("There was an error Unmarshalling response: %v", e)
 		}
+		log.Printf("Silence Created with ID %s.", silenceResp.ID)
 		return silenceResp.ID, nil
 	}
 }
