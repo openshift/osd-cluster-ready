@@ -46,7 +46,7 @@ func main() {
 		os.Exit(0)
 	}
 
-	silenceID, err := create_silence()
+	silenceID, err := createSilence()
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -55,17 +55,11 @@ func main() {
 	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
 	log.Println("Healthchecks Succeeded.  Removing Silence.")
 
-	for i := 0; i < 5; i++ {
-		// Attempt up to 5 times to unsilence the cluster
-		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
-		err := unsilenceCommand.Run()
-		if err != nil {
-			log.Printf("Unsilence Failed. %v", err)
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		break
+	err = removeSilence(silenceID)
+	if err != nil {
+		log.Fatal(err)
 	}
+	log.Println("Silence Successfully Removed.")
 }
 
 func getClusterCreationTime() (time.Time, error) {
@@ -93,7 +87,7 @@ func getClusterCreationTime() (time.Time, error) {
 	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
 }
 
-func create_silence() (string, error) {
+func createSilence() (string, error) {
 	// Create the Silence
 	now := time.Now().UTC()
 	end := now.Add(1 * time.Hour)
@@ -134,6 +128,22 @@ func create_silence() (string, error) {
 		}
 		return silenceResp.ID, nil
 	}
+}
+
+func removeSilence(silenceID string) error {
+	for i := 0; i < 5; i++ {
+		// Attempt up to 5 times to unsilence the cluster
+		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
+		unsilenceCommand.Stderr = os.Stderr
+		err := unsilenceCommand.Run()
+		if err != nil {
+			log.Printf("Attempt %d to unsilence failed. %v", i, err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		return nil
+	}
+	return fmt.Errorf("there was an error unsilencing the cluster")
 }
 
 func homeDir() string {
