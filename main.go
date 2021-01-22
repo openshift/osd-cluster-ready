@@ -36,8 +36,19 @@ type silenceResponse struct {
 }
 
 func main() {
-	var respString string
+	clusterInit, err := getClusterCreationTime()
+	if err != nil {
+		log.Fatal(err)
+	}
+	oneHourAgo := time.Now().Add(-1 * time.Hour)
+	if clusterInit.Before(oneHourAgo) {
+		log.Printf("Cluster created more than 1 hour ago.  Exiting Cleanly.")
+		os.Exit(0)
+	}
+	run_silence()
+}
 
+func getClusterCreationTime() (time.Time, error) {
 	for i := 1; i <= 300; i++ { // try once a second or so for 5 minutes-ish
 		ex := "oc exec -n openshift-monitoring prometheus-k8s-0 -c prometheus -- curl localhost:9090/api/v1/query --silent --data-urlencode 'query=cluster_version' | jq -r '.data.result[] | select(.metric.type==\"initial\") | .value[1]'"
 		promCmd := exec.Command("bash", "-c", ex)
@@ -48,22 +59,18 @@ func main() {
 			time.Sleep(1 * time.Second)
 			continue
 		}
-		respString = string(resp)
+		respTrimmed := strings.TrimSuffix(string(resp), "\n")
+		initTime, err := strconv.ParseInt(respTrimmed, 10, 64)
+		if err != nil {
+			log.Printf("Error casting Epoch time to int. %s\nErr: %v", resp, err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		clusterCreation := time.Unix(initTime, 0)
+		log.Printf("Cluster Created %v", clusterCreation.UTC())
+		return clusterCreation, nil
 	}
-	respTrimmed := strings.TrimSuffix(respString, "\n")
-	clusterInitSec, err := strconv.ParseInt(respTrimmed, 10, 64)
-	if err != nil {
-		log.Printf("Error casting Epoch time to int. %s\nErr: %v", respString, err)
-		os.Exit(1)
-	}
-
-	clusterInit := time.Unix(clusterInitSec, 0)
-	oneHourAgo := time.Now().Add(-1 * time.Hour)
-	if clusterInit.Before(oneHourAgo) {
-		log.Printf("Cluster created more than 1 hour ago.  Exiting Cleanly.")
-		os.Exit(0)
-	}
-	run_silence()
+	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
 }
 
 func run_silence() {
@@ -72,8 +79,8 @@ func run_silence() {
 	end := now.Add(1 * time.Hour)
 
 	allMatcher := matcher{}
-	allMatcher.Name = "alertname"
-	allMatcher.Value = "/*/"
+	allMatcher.Name = "severity"
+	allMatcher.Value = "info|warning|critical"
 	allMatcher.IsRegex = true
 
 	silenceBody := silenceRequest{}
