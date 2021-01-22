@@ -6,7 +6,7 @@ The silence takes effect for 1 hour, which allows any clusters that are having i
 
 ## Deploying the Image
 
-```GOOS=linux go build -o ./bin/main main.go && docker build . -t quay.io/kbater/openshift-cli && docker push quay.io/kbater/openshift-cli```
+```GOOS=linux go build -o ./bin/main main.go && docker build . -t quay.io/openshift-sre/osd-cluster-ready && docker push quay.io/openshift-sre/osd-cluster-ready```
 
 This builds the binary for linux, builds the docker file (which requires the binary to be built externally as of right now) and then pushes the updated image to quay.
 
@@ -17,5 +17,6 @@ Deploy each of the jobs in alpha/numeric order in the deploy folder.
 # TO DO
 
 [x] Skip the job if the cluster is older than 1 hour  
+[x] Look for existing active silences before creating a new one
 [ ] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability  
 [ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.  
