@@ -45,7 +45,27 @@ func main() {
 		log.Printf("Cluster created more than 1 hour ago.  Exiting Cleanly.")
 		os.Exit(0)
 	}
-	run_silence()
+
+	silenceID, err := create_silence()
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	log.Printf("Silence Created with ID %s. Beginning Healthchecks.", silenceID)
+	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
+	log.Println("Healthchecks Succeeded.  Removing Silence.")
+
+	for i := 0; i < 5; i++ {
+		// Attempt up to 5 times to unsilence the cluster
+		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
+		err := unsilenceCommand.Run()
+		if err != nil {
+			log.Printf("Unsilence Failed. %v", err)
+			time.Sleep(1 * time.Second)
+			continue
+		}
+		break
+	}
 }
 
 func getClusterCreationTime() (time.Time, error) {
@@ -73,7 +93,7 @@ func getClusterCreationTime() (time.Time, error) {
 	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
 }
 
-func run_silence() {
+func create_silence() (string, error) {
 	// Create the Silence
 	now := time.Now().UTC()
 	end := now.Add(1 * time.Hour)
@@ -92,10 +112,8 @@ func run_silence() {
 
 	silenceJSON, err := json.Marshal(silenceBody)
 	if err != nil {
-		log.Fatal(fmt.Sprintf("There was an error marshalling JSON: %v", silenceJSON))
+		return "", fmt.Errorf("There was an error marshalling JSON: %v", silenceJSON)
 	}
-
-	var silenceID string
 
 	for {
 		// Attempt to run once every 30 seconds until this succeeds
@@ -112,26 +130,9 @@ func run_silence() {
 		var silenceResp silenceResponse
 		e := json.Unmarshal(resp, &silenceResp)
 		if e != nil {
-			log.Fatal("There was an error unmarshalling the silence response", e)
+			return "", fmt.Errorf("There was an error Unmarshalling response: %v", e)
 		}
-		silenceID = silenceResp.ID
-		break
-	}
-
-	log.Printf("Silence Created with ID %s. Beginning Healthchecks.", silenceID)
-	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
-	log.Println("Healthchecks Succeeded.  Removing Silence.")
-
-	for i := 0; i < 5; i++ {
-		// Attempt up to 5 times to unsilence the cluster
-		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
-		err := unsilenceCommand.Run()
-		if err != nil {
-			log.Printf("Unsilence Failed. %v", err)
-			time.Sleep(1 * time.Second)
-			continue
-		}
-		break
+		return silenceResp.ID, nil
 	}
 }
 
