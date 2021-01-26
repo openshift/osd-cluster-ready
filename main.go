@@ -68,7 +68,7 @@ func main() {
 	}
 
 	log.Println("Beginning Healthchecks.")
-	time.Sleep(30 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
+	time.Sleep(40 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
 	log.Println("Healthchecks Succeeded.  Removing Silence.")
 
 	err = removeSilence(silenceID)
