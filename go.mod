@@ -5,8 +5,9 @@ go 1.15
 require (
 	github.com/openshift/api v0.0.0-20200521101457-60c476765272
 	github.com/openshift/client-go v0.0.0-00010101000000-000000000000
-	k8s.io/apimachinery v0.19.4
-	k8s.io/client-go v0.18.3
+	k8s.io/api v0.19.0
+	k8s.io/apimachinery v0.19.0
+	k8s.io/client-go v0.19.0
 )
 
 replace (
