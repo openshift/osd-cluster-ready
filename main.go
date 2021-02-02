@@ -21,6 +21,19 @@ const (
 	maxClusterAgeKey = "MAX_CLUSTER_AGE_MINUTES"
 	// By default, ignore clusters older than two hours
 	maxClusterAgeDefault = 2 * 60
+
+	// The number of consecutive health checks that must succeed before we declare the cluster
+	// truly healthy.
+	cleanCheckRunsKey     = "CLEAN_CHECK_RUNS"
+	cleanCheckRunsDefault = 20
+
+	// The number of seconds between successful health checks.
+	cleanCheckIntervalKey     = "CLEAN_CHECK_INTERVAL_SECONDS"
+	cleanCheckIntervalDefault = 30
+
+	// The number of seconds to sleep after a failed health check.
+	failedCheckIntervalKey = "FAILED_CHECK_INTERVAL_SECONDS"
+	failedCheckIntervalDefault = 60
 )
 
 func main() {
@@ -29,7 +42,22 @@ func main() {
 		log.Fatal(err)
 	}
 
-	maxClusterAge, err := getMaxClusterAge()
+	maxClusterAge, err := getEnvInt(maxClusterAgeKey, maxClusterAgeDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cleanCheckRuns, err := getEnvInt(cleanCheckRunsKey, cleanCheckRunsDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	cleanCheckInterval, err := getEnvInt(cleanCheckIntervalKey, cleanCheckIntervalDefault)
+	if err != nil {
+		log.Fatal(err)
+	}
+
+	failedCheckInterval, err := getEnvInt(failedCheckIntervalKey, failedCheckIntervalDefault)
 	if err != nil {
 		log.Fatal(err)
 	}
@@ -51,7 +79,7 @@ func main() {
 			os.Exit(0)
 		}
 
-		healthy, err := doHealthCheck()
+		healthy, err := isClusterHealthy(cleanCheckRuns, cleanCheckInterval)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -82,8 +110,8 @@ func main() {
 			}
 		}
 
-		log.Println("Health checks failed. Sleeping...")
-		time.Sleep(time.Minute)
+		log.Printf("Health checks failed. Sleeping %d seconds before rechecking...\n", failedCheckInterval)
+		time.Sleep(time.Duration(failedCheckInterval) * time.Second)
 	}
 
 	// UNREACHED
@@ -112,6 +140,27 @@ func getClusterCreationTime() (time.Time, error) {
 		return clusterCreation, nil
 	}
 	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
+}
+
+// getEnvInt returns the integer value of the environment variable with the specified `key`.
+// If the env var is unspecified/empty, the `def` value is returned.
+// The error is non-nil if the env var is nonempty but cannot be parsed as an int.
+func getEnvInt(key string, def int) (int, error) {
+	var intVal int
+	var err error
+
+	strVal := os.Getenv(key)
+
+	if strVal == "" {
+		// Env var unset; use the default
+		return def, nil
+	}
+
+	if intVal, err = strconv.Atoi(strVal); err != nil {
+		return 0, fmt.Errorf("Invalid value for env var: %s=%s (expected int): %v", key, strVal, err)
+	}
+
+	return intVal, nil
 }
 
 // getMaxClusterAge returns the maximum age, in minutes, that a cluster should be before we stop
@@ -147,7 +196,6 @@ func clusterTooOld(clusterBirth time.Time, maxAgeMinutes int) bool {
 // Returns (false, err) if any health check failed.
 // Iff an error occurs, err is non-nil.
 func doHealthCheck() (bool, error) {
-	log.Println("======== Health Checks ========")
 	status, failures, err := cluster.PollClusterHealth("", nil)
 	if err != nil {
 		log.Printf("Error(s) running health checks: %v\n", err)
@@ -161,4 +209,25 @@ func doHealthCheck() (bool, error) {
 		log.Printf("Health check(s) failed.")
 	}
 	return status, err
+}
+
+// isClusterHealthy runs health checks multiple times, succeeding only if checks pass the requisite
+// number of consecutive times. We return failure immediately if any check fails, or if an error
+// occurs.
+func isClusterHealthy(cleanCheckRuns, cleanCheckInterval int) (bool, error) {
+	for i := 1; ; i++ {
+		log.Printf("======== Health Checks: %d of %d ========\n", i, cleanCheckRuns)
+		status, err := doHealthCheck()
+		if err != nil {
+			return false, err
+		}
+		if status && i >= cleanCheckRuns {
+			return true, nil
+		}
+		if !status {
+			return false, nil
+		}
+		log.Printf("Sleeping %d seconds...\n", cleanCheckInterval)
+		time.Sleep(time.Duration(cleanCheckInterval) * time.Second)
+	}
 }
