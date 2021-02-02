@@ -1,4 +1,4 @@
-module github.com/iamkirkbater/osd-readiness-spike
+module github.com/iamkirkbater/osd-cluster-ready-job
 
 go 1.15
 
