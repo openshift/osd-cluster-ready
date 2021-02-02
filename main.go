@@ -2,19 +2,15 @@ package main
 
 import (
 	"encoding/json"
-	"flag"
 	"fmt"
 	"log"
 	"os"
 	"os/exec"
-	"path/filepath"
 	"strconv"
 	"strings"
 	"time"
 
-	osconfig "github.com/openshift/client-go/config/clientset/versioned"
-	"k8s.io/client-go/rest"
-	"k8s.io/client-go/tools/clientcmd"
+	"github.com/openshift/osde2e/pkg/common/cluster"
 )
 
 const createdBy = "OSD Cluster Readiness Job"
@@ -56,26 +52,43 @@ func main() {
 		os.Exit(0)
 	}
 
-	silenceID, err := checkForExistingSilence()
-	if err != nil {
-		log.Fatal(err)
-	}
-	if silenceID == "" {
-		silenceID, err = createSilence()
+	for {
+		healthy, err := doHealthCheck()
 		if err != nil {
 			log.Fatal(err)
 		}
+
+		silenceID, err := checkForExistingSilence()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		if healthy {
+			if silenceID != "" {
+				err = removeSilence(silenceID)
+				if err != nil {
+					log.Fatal(err)
+				}
+			} else {
+				log.Println("Health checks passed and cluster was not silenced. Nothing to do here.")
+			}
+			os.Exit(0)
+		}
+
+		// If we got here, our cluster is unhealthy. Make sure our silence is active.
+		// We do this every time because the silence is set to expire automatically in an hour.
+		if silenceID == "" {
+			silenceID, err = createSilence()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
+		log.Println("Health checks failed. Sleeping...")
+		time.Sleep(time.Minute)
 	}
 
-	log.Println("Beginning Healthchecks.")
-	time.Sleep(40 * time.Minute) // TODO: Remove this and do loop thru actual healthchecks
-	log.Println("Healthchecks Succeeded.  Removing Silence.")
-
-	err = removeSilence(silenceID)
-	if err != nil {
-		log.Fatal(err)
-	}
-	log.Println("Silence Successfully Removed.")
+	// UNREACHED
 }
 
 func getClusterCreationTime() (time.Time, error) {
@@ -189,6 +202,7 @@ func createSilence() (string, error) {
 }
 
 func removeSilence(silenceID string) error {
+	log.Printf("Removing Silence %s\n", silenceID)
 	for i := 0; i < 5; i++ {
 		// Attempt up to 5 times to unsilence the cluster
 		unsilenceCommand := exec.Command("oc", "exec", "-n", "openshift-monitoring", "alertmanager-main-0", "-c", "alertmanager", "--", "curl", fmt.Sprintf("localhost:9093/api/v2/silence/%s", silenceID), "--silent", "-X", "DELETE")
@@ -199,36 +213,30 @@ func removeSilence(silenceID string) error {
 			time.Sleep(1 * time.Second)
 			continue
 		}
+		log.Println("Silence Successfully Removed.")
 		return nil
 	}
 	return fmt.Errorf("there was an error unsilencing the cluster")
 }
 
-func homeDir() string {
-	if h := os.Getenv("HOME"); h != "" {
-		return h
-	}
-	return os.Getenv("USERPROFILE") // windows
-}
-
-func getClientSet() (*osconfig.Clientset, error) {
-	var kubeconfig *string
-	// Attempt to use the inClusterConfig first and then if that doesn't work fall back to local
-	config, err := rest.InClusterConfig()
+// doHealthCheck performs one instance of the health check.
+// Logs what happens.
+// Returns (true, err) if all health checks succeeded.
+// Returns (false, err) if any health check failed.
+// Iff an error occurs, err is non-nil.
+func doHealthCheck() (bool, error) {
+	log.Println("======== Health Checks ========")
+	status, failures, err := cluster.PollClusterHealth("", nil)
 	if err != nil {
-		log.Println("No in-cluster config present.  Attempting to use local config.")
-		if home := homeDir(); home != "" {
-			kubeconfig = flag.String("kubeconfig", filepath.Join(home, ".kube", "config"), "(optional) absolute path to the kubeconfig file")
-		} else {
-			kubeconfig = flag.String("kubeconfig", "", "absolute path to the kubeconfig file")
-		}
-		flag.Parse()
-
-		// use the current context in kubeconfig
-		config, err = clientcmd.BuildConfigFromFlags("", *kubeconfig)
-		if err != nil {
-			log.Fatal("Cannot build config")
-		}
+		log.Printf("Error(s) running health checks: %v\n", err)
 	}
-	return osconfig.NewForConfig(config)
+	if len(failures) != 0 {
+		log.Printf("Healthcheck encountered the following failures: %v\n", failures)
+	}
+	if status {
+		log.Printf("Health checks succeeded.")
+	} else {
+		log.Printf("Health check(s) failed.")
+	}
+	return status, err
 }

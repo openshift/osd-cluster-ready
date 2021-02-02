@@ -8,7 +8,7 @@ build:
 	GOOS=linux go build -o ./bin/main main.go
 
 .PHONY: docker-build
-docker-build:
+docker-build: build
 	docker build . -t $(IMAGE_URI)
 
 .PHONY: docker-push
