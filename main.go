@@ -14,18 +14,43 @@ import (
 	"github.com/iamkirkbater/osd-cluster-ready-job/silence"
 )
 
+const (
+	// Maximum cluster age, in minutes, before we'll start ignoring it.
+	// This is in case the Job gets deployed on an already-initialized but unhealthy cluster:
+	// we don't want to silence alerts in that case.
+	maxClusterAgeKey = "MAX_CLUSTER_AGE_MINUTES"
+	// By default, ignore clusters older than two hours
+	maxClusterAgeDefault = 2 * 60
+)
+
 func main() {
-	clusterInit, err := getClusterCreationTime()
+	clusterBirth, err := getClusterCreationTime()
 	if err != nil {
 		log.Fatal(err)
 	}
-	oneHourAgo := time.Now().Add(-1 * time.Hour)
-	if clusterInit.Before(oneHourAgo) {
-		log.Printf("Cluster created more than 1 hour ago.  Exiting Cleanly.")
-		os.Exit(0)
+
+	maxClusterAge, err := getMaxClusterAge()
+	if err != nil {
+		log.Fatal(err)
 	}
 
 	for {
+		if clusterTooOld(clusterBirth, maxClusterAge) {
+			log.Printf("Cluster is older than %d minutes. Exiting Cleanly.", maxClusterAge)
+			// Make sure no silence is active
+			silenceID, err := silence.FindExisting()
+			if err != nil {
+				log.Fatal(err)
+			}
+			if silenceID != "" {
+				err = silence.Remove(silenceID)
+				if err != nil {
+					log.Fatal(err)
+				}
+			}
+			os.Exit(0)
+		}
+
 		healthy, err := doHealthCheck()
 		if err != nil {
 			log.Fatal(err)
@@ -87,6 +112,33 @@ func getClusterCreationTime() (time.Time, error) {
 		return clusterCreation, nil
 	}
 	return time.Unix(0, 0), fmt.Errorf("there was an error getting cluster creation time")
+}
+
+// getMaxClusterAge returns the maximum age, in minutes, that a cluster should be before we stop
+// health checking it. This is gleaned from the MAX_CLUSTER_AGE_MINUTES environment variable,
+// defaulting to two hours. The error is non-nil if the env var is nonempty but cannot be parsed
+// as an int.
+func getMaxClusterAge() (int, error) {
+	var maxAgeInt int
+	var err error
+
+	maxAgeStr := os.Getenv(maxClusterAgeKey)
+
+	if maxAgeStr == "" {
+		// Env var unset; use the default
+		return maxClusterAgeDefault, nil
+	}
+
+	if maxAgeInt, err = strconv.Atoi(maxAgeStr); err != nil {
+		return 0, fmt.Errorf("Invalid value for %s env var (expected int): %v", maxClusterAgeKey, err)
+	}
+
+	return maxAgeInt, nil
+}
+
+func clusterTooOld(clusterBirth time.Time, maxAgeMinutes int) bool {
+	maxAge := time.Now().Add(time.Duration(-maxAgeMinutes) * time.Minute)
+	return clusterBirth.Before(maxAge)
 }
 
 // doHealthCheck performs one instance of the health check.
