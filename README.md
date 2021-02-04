@@ -8,6 +8,7 @@
     - [`CLEAN_CHECK_RUNS`](#clean_check_runs)
     - [`CLEAN_CHECK_INTERVAL_SECONDS`](#clean_check_interval_seconds)
     - [`FAILED_CHECK_INTERVAL_SECONDS`](#failed_check_interval_seconds)
+  - [Keeping up with osde2e](#keeping-up-with-osde2e)
 - [TO DO](#to-do)
 
 This job silences alerts while Day2 configuration is loaded onto a cluster at initial provisioning, allowing it to not page on-call SREs for normal operations within the cluster.
@@ -72,9 +73,21 @@ The number of seconds to sleep after a failed health check, before rechecking.
 
 **Default:** `"60"` (one minute)
 
+## Keeping up with osde2e
+This code runs health checks via a module dependency on `github.com/openshift/osde2e`.
+That dependency is pinned to a specific commit in [go.mod](go.mod).
+That commit must be modified manually to pick up changes in osde2e.
+An easy way to bump to the latest commit is to run:
+
+```
+go get -u github.com/openshift/osde2e
+```
+
+Don't forget to [build](#deploying-the-image) and [test](#deploying-the-job) with the updated dependency before committing!
+
 # TO DO
 
-[x] Look for existing active silences before creating a new one
-[x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
-[ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.  
-[ ] Make the default silence expiry shorter; and extend it when health checks fail.
+- [x] Look for existing active silences before creating a new one
+- [x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
+- [ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.
+- [ ] Make the default silence expiry shorter; and extend it when health checks fail ([OSD-6384](https://issues.redhat.com/browse/OSD-6384)).

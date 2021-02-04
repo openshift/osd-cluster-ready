@@ -6,7 +6,7 @@ require (
 	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
 	github.com/mattn/go-colorable v0.1.8 // indirect
-	github.com/openshift/osde2e v0.0.0-20210202133851-7e201f679bbe
+	github.com/openshift/osde2e v0.0.0-20210204164300-6ea0907b7227
 	github.com/sirupsen/logrus v1.7.0 // indirect
 	github.com/spf13/cobra v1.1.1 // indirect
 	golang.org/x/sys v0.0.0-20210124154548-22da62e12c0c // indirect
