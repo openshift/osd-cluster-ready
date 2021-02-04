@@ -163,28 +163,6 @@ func getEnvInt(key string, def int) (int, error) {
 	return intVal, nil
 }
 
-// getMaxClusterAge returns the maximum age, in minutes, that a cluster should be before we stop
-// health checking it. This is gleaned from the MAX_CLUSTER_AGE_MINUTES environment variable,
-// defaulting to two hours. The error is non-nil if the env var is nonempty but cannot be parsed
-// as an int.
-func getMaxClusterAge() (int, error) {
-	var maxAgeInt int
-	var err error
-
-	maxAgeStr := os.Getenv(maxClusterAgeKey)
-
-	if maxAgeStr == "" {
-		// Env var unset; use the default
-		return maxClusterAgeDefault, nil
-	}
-
-	if maxAgeInt, err = strconv.Atoi(maxAgeStr); err != nil {
-		return 0, fmt.Errorf("Invalid value for %s env var (expected int): %v", maxClusterAgeKey, err)
-	}
-
-	return maxAgeInt, nil
-}
-
 func clusterTooOld(clusterBirth time.Time, maxAgeMinutes int) bool {
 	maxAge := time.Now().Add(time.Duration(-maxAgeMinutes) * time.Minute)
 	return clusterBirth.Before(maxAge)
