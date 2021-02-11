@@ -11,7 +11,7 @@ import (
 
 const createdBy = "OSD Cluster Readiness Job"
 
-type silenceRequest struct {
+type SilenceRequest struct {
 	ID        string       `json:"id"`
 	Status    silenceState `json:"status"`
 	Matchers  []matcher    `json:"matchers"`
@@ -31,7 +31,7 @@ type matcher struct {
 	IsRegex bool   `json:"isRegex"`
 }
 
-type getSilenceResponse []*silenceRequest
+type getSilenceResponse []*SilenceRequest
 
 type silenceResponse struct {
 	ID string `json:"silenceID"`
@@ -40,7 +40,7 @@ type silenceResponse struct {
 // FindExisting looks for an existing, active silence that was created by us. If found,
 // its ID is returned; otherwise the empty string is returned. The latter is not an
 // error condition.
-func FindExisting() (string, error) {
+func FindExisting() (*SilenceRequest, error) {
 	for i := 1; i <= 300; i++ { // try once a second or so for 5-ish minutes
 		cmdstr := "oc exec -n openshift-monitoring alertmanager-main-0 -c alertmanager -- curl --silent localhost:9093/api/v2/silences -X GET"
 		silenceGetCmd := exec.Command("bash", "-c", cmdstr)
@@ -55,11 +55,11 @@ func FindExisting() (string, error) {
 		err = json.Unmarshal(resp, &silences)
 		if err != nil {
 			log.Printf("There was an error unmarshalling get silence response")
-			return "", err
+			return nil, err
 		}
 		if len(silences) == 0 {
 			log.Printf("No Silences Present")
-			return "", nil
+			return nil, nil
 		}
 
 		for _, silence := range silences {
@@ -71,14 +71,14 @@ func FindExisting() (string, error) {
 				continue
 			}
 			log.Printf("Found silence created by job: %s", silence.ID)
-			return silence.ID, nil
+			return silence, nil
 		}
 
 		log.Printf("No silences created by job found.")
-		return "", nil
+		return nil, nil
 	}
 
-	return "", fmt.Errorf("unable to get a list of existing silences")
+	return nil, fmt.Errorf("unable to get a list of existing silences")
 }
 
 // Create adds a new silence that expires in one hour.
@@ -92,7 +92,7 @@ func Create() (string, error) {
 	allMatcher.Value = "info|warning|critical"
 	allMatcher.IsRegex = true
 
-	silenceBody := silenceRequest{}
+	silenceBody := SilenceRequest{}
 	silenceBody.Matchers = []matcher{allMatcher}
 	silenceBody.StartsAt = now.Format(time.RFC3339)
 	silenceBody.EndsAt = end.Format(time.RFC3339)

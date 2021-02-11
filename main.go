@@ -32,7 +32,7 @@ const (
 	cleanCheckIntervalDefault = 30
 
 	// The number of seconds to sleep after a failed health check.
-	failedCheckIntervalKey = "FAILED_CHECK_INTERVAL_SECONDS"
+	failedCheckIntervalKey     = "FAILED_CHECK_INTERVAL_SECONDS"
 	failedCheckIntervalDefault = 60
 )
 
@@ -66,12 +66,12 @@ func main() {
 		if clusterTooOld(clusterBirth, maxClusterAge) {
 			log.Printf("Cluster is older than %d minutes. Exiting Cleanly.", maxClusterAge)
 			// Make sure no silence is active
-			silenceID, err := silence.FindExisting()
+			amSilence, err := silence.FindExisting()
 			if err != nil {
 				log.Fatal(err)
 			}
-			if silenceID != "" {
-				err = silence.Remove(silenceID)
+			if amSilence.ID != "" {
+				err = silence.Remove(amSilence.ID)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -84,14 +84,14 @@ func main() {
 			log.Fatal(err)
 		}
 
-		silenceID, err := silence.FindExisting()
+		amSilence, err := silence.FindExisting()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		if healthy {
-			if silenceID != "" {
-				err = silence.Remove(silenceID)
+			if amSilence.ID != "" {
+				err = silence.Remove(amSilence.ID)
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -103,8 +103,8 @@ func main() {
 
 		// If we got here, our cluster is unhealthy. Make sure our silence is active.
 		// We do this every time because the silence is set to expire automatically in an hour.
-		if silenceID == "" {
-			silenceID, err = silence.Create()
+		if amSilence.ID == "" {
+			amSilence.ID, err = silence.Create()
 			if err != nil {
 				log.Fatal(err)
 			}
