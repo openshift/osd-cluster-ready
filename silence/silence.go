@@ -144,3 +144,25 @@ func Remove(silenceID string) error {
 	}
 	return fmt.Errorf("there was an error unsilencing the cluster")
 }
+
+func Update(amSilence *silence.SilenceRequest) error {
+	now := time.Now().UTC()
+	end := now.Add(5 * time.Minute)
+
+	// Modify existing silence StartsAt and EndsAt files with + timePeriod from now
+
+	// POST update silence to Alertmanager
+}
+
+// ExpiresIn returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
+func ExpiresIn(amSilence *silence.SilenceRequest, expiryPeriod time.Duration) (bool, error) {
+	// Parse start and end times of Alertmanager Silence
+	start := time.Parse(time.RFC3339, amSilence.StartsAt)
+	end := time.Parse(time.RFC3339, amSilence.EndsAt)
+
+	// Find the remaining time left on the silence
+	remaining := end.Sub(start)
+
+	// Return bool if the remaining time is less than the expiryPeriod
+	return remaining < expiryPeriod
+}
