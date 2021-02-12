@@ -37,6 +37,10 @@ const (
 )
 
 func main() {
+	// New Alert Manager Silence Request
+	silenceReq := silence.NewSilenceRequest()
+
+	log.Printf("Please tell me you can see meee")
 	clusterBirth, err := getClusterCreationTime()
 	if err != nil {
 		log.Fatal(err)
@@ -63,15 +67,42 @@ func main() {
 	}
 
 	for {
+		log.Printf("helllooooooooo")
+		_, err := silenceReq.FindExisting()
+		if err != nil {
+			log.Fatal(err)
+		}
+
+		fmt.Println("Printing silenceReq struct")
+		fmt.Printf("%#v\n", silenceReq)
+
+		if silenceReq.ID != "" {
+			fmt.Println("Silence ID is blank")
+			if ok, _ := silenceReq.WillExpireBy(15 * time.Minute); ok {
+				fmt.Println("Silence expires within 15 miuntes ")
+				log.Printf("Silence will expire within 15 minutes")
+				log.Printf("Creating new silence")
+			} else {
+				fmt.Println("Silence expires after 15 minutes")
+				log.Printf("Creating silence to last a health check")
+				silenceReq.Build(10 * time.Minute).Create()
+			}
+		} else {
+			fmt.Println("Creating 12 minute silence")
+			silenceReq.Build(12 * time.Minute).Create()
+		}
+
+		fmt.Println("Passed silence being blank")
+
 		if clusterTooOld(clusterBirth, maxClusterAge) {
 			log.Printf("Cluster is older than %d minutes. Exiting Cleanly.", maxClusterAge)
 			// Make sure no silence is active
-			amSilence, err := silence.FindExisting()
+			_, err := silenceReq.FindExisting()
 			if err != nil {
 				log.Fatal(err)
 			}
-			if amSilence.ID != "" {
-				err = silence.Remove(amSilence.ID)
+			if silenceReq.ID != "" {
+				err = silenceReq.Remove()
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -84,14 +115,14 @@ func main() {
 			log.Fatal(err)
 		}
 
-		amSilence, err := silence.FindExisting()
+		amSilence, err := silenceReq.FindExisting()
 		if err != nil {
 			log.Fatal(err)
 		}
 
 		if healthy {
 			if amSilence.ID != "" {
-				err = silence.Remove(amSilence.ID)
+				err = silenceReq.Remove()
 				if err != nil {
 					log.Fatal(err)
 				}
@@ -103,11 +134,15 @@ func main() {
 
 		// If we got here, our cluster is unhealthy. Make sure our silence is active.
 		// We do this every time because the silence is set to expire automatically in an hour.
-		if amSilence.ID == "" {
-			amSilence.ID, err = silence.Create()
+		if silenceReq.ID == "" {
+			_, err = silenceReq.Build(1 * time.Hour).Create()
 			if err != nil {
 				log.Fatal(err)
 			}
+		} else if ok, _ := silenceReq.WillExpireBy(15 * time.Minute); ok {
+			log.Printf("End of health check silence will expire in 15 minutes")
+			log.Printf("Adding 5 minutes")
+			silenceReq.Build(15 * time.Minute).Create()
 		}
 
 		log.Printf("Health checks failed. Sleeping %d seconds before rechecking...\n", failedCheckInterval)
