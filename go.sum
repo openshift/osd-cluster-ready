@@ -940,8 +940,6 @@ github.com/openshift/machine-config-operator v4.2.0-alpha.0.0.20190917115525-033
 github.com/openshift/managed-upgrade-operator v0.0.0-20200820052802-5d57e1785b53/go.mod h1:ds7uALiqWAx+Z0Ru/NcSUIp55jgxbkzfb6wMwG2cMhQ=
 github.com/openshift/operator-custom-metrics v0.3.0/go.mod h1:4k6G9+KHKg6r/ShP8Vi9YFnpJ5fbHPkQsYCUlzMwtYQ=
 github.com/openshift/origin v0.0.0-20160503220234-8f127d736703/go.mod h1:0Rox5r9C8aQn6j1oAOQ0c1uC86mYbUFObzjBRvUKHII=
-github.com/openshift/osde2e v0.0.0-20210202133851-7e201f679bbe h1:AbI3BqdTfdSE0C3riAEf7qwpwvuHFOGZTqnPwugYVhQ=
-github.com/openshift/osde2e v0.0.0-20210202133851-7e201f679bbe/go.mod h1:U6xv2klLbvQDF6zpK2tTzlbYTjZ0jl9vj6FKPAjI4jY=
 github.com/openshift/osde2e v0.0.0-20210204164300-6ea0907b7227 h1:NFTpZpYHR6E0EN9dJkGuAemViDFkcGPjGy+85YnpT/g=
 github.com/openshift/osde2e v0.0.0-20210204164300-6ea0907b7227/go.mod h1:U6xv2klLbvQDF6zpK2tTzlbYTjZ0jl9vj6FKPAjI4jY=
 github.com/openshift/prom-label-proxy v0.1.1-0.20191016113035-b8153a7f39f1/go.mod h1:p5MuxzsYP1JPsNGwtjtcgRHHlGziCJJfztff91nNixw=

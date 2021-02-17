@@ -11,7 +11,7 @@ import (
 
 	"github.com/openshift/osde2e/pkg/common/cluster"
 
-	"github.com/iamkirkbater/osd-cluster-ready-job/silence"
+	"github.com/openshift/osd-cluster-ready-job/silence"
 )
 
 const (
