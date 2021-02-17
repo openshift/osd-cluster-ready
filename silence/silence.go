@@ -11,6 +11,7 @@ import (
 
 const createdBy = "OSD Cluster Readiness Job"
 
+// SilenceRequest represents a Alertmanager silence request object
 type SilenceRequest struct {
 	ID        string       `json:"id"`
 	Status    silenceState `json:"status"`
@@ -100,10 +101,7 @@ func (sr *SilenceRequest) Build(expiryPeriod time.Duration) *SilenceRequest {
 
 	allMatcher := matcher{}
 	allMatcher.Name = "severity"
-	// Match all alerts
-	// This doesn't work and should, maybe it needs better escaping?
-	// allMatcher.Value = ".*"
-	allMatcher.Value = "(Critical|Warning)"
+	allMatcher.Value = "info|warning|critical"
 	allMatcher.IsRegex = true
 
 	sr.Matchers = []matcher{allMatcher}
@@ -144,7 +142,7 @@ func (sr *SilenceRequest) Send() (*silenceResponse, error) {
 	}
 }
 
-// Remove deletes the silence with the given silenceID
+// Remove deletes the silence with the given sr.ID
 func (sr *SilenceRequest) Remove() error {
 	log.Printf("Removing Silence %s\n", sr.ID)
 	for i := 0; i < 5; i++ {
@@ -163,7 +161,7 @@ func (sr *SilenceRequest) Remove() error {
 	return fmt.Errorf("there was an error unsilencing the cluster")
 }
 
-// ExpiresIn returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
+// WillExpireBy returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
 func (sr *SilenceRequest) WillExpireBy(expiryPeriod time.Duration) (bool, error) {
 	// Parse end time of Alertmanager Silence
 	end, err := time.Parse(time.RFC3339, sr.EndsAt)
