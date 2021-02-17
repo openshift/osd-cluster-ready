@@ -11,7 +11,7 @@ import (
 
 	"github.com/openshift/osde2e/pkg/common/cluster"
 
-	"github.com/iamkirkbater/osd-cluster-ready-job/silence"
+	"github.com/openshift/osd-cluster-ready-job/silence"
 )
 
 const (
@@ -38,9 +38,9 @@ const (
 
 func main() {
 	// New Alert Manager Silence Request
+	// TODO: Handle multiple silences being active
 	silenceReq := silence.NewSilenceRequest()
 
-	log.Printf("Please tell me you can see meee")
 	clusterBirth, err := getClusterCreationTime()
 	if err != nil {
 		log.Fatal(err)
@@ -67,41 +67,32 @@ func main() {
 	}
 
 	for {
-		log.Printf("helllooooooooo")
-		_, err := silenceReq.FindExisting()
+
+		// Technically we should check if silenceReq has an ID here, no need to look for another
+		// active silence
+		silenceReq, err := silenceReq.FindExisting()
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		fmt.Println("Printing silenceReq struct")
-		fmt.Printf("%#v\n", silenceReq)
-
+		// If there is an existing silence ensure its not going to expiry before
+		// our healthchecks are complete
+		// TODO: Use above vars to calculate healthcheck MAX duration
 		if silenceReq.ID != "" {
-			fmt.Println("Silence ID is blank")
 			if ok, _ := silenceReq.WillExpireBy(15 * time.Minute); ok {
-				fmt.Println("Silence expires within 15 miuntes ")
 				log.Printf("Silence will expire within 15 minutes")
 				log.Printf("Creating new silence")
-			} else {
-				fmt.Println("Silence expires after 15 minutes")
-				log.Printf("Creating silence to last a health check")
-				silenceReq.Build(10 * time.Minute).Create()
+				_, err = silenceReq.Build(15 * time.Minute).Send()
+				if err != nil {
+					log.Fatal(err)
+				}
 			}
-		} else {
-			fmt.Println("Creating 12 minute silence")
-			silenceReq.Build(12 * time.Minute).Create()
 		}
-
-		fmt.Println("Passed silence being blank")
 
 		if clusterTooOld(clusterBirth, maxClusterAge) {
 			log.Printf("Cluster is older than %d minutes. Exiting Cleanly.", maxClusterAge)
-			// Make sure no silence is active
-			_, err := silenceReq.FindExisting()
-			if err != nil {
-				log.Fatal(err)
-			}
 			if silenceReq.ID != "" {
+				// TODO: There might be more than one silence to remove
 				err = silenceReq.Remove()
 				if err != nil {
 					log.Fatal(err)
@@ -110,18 +101,24 @@ func main() {
 			os.Exit(0)
 		}
 
+		// If there are no existing silences create one for 1 hour
+		// TODO: Do we need to create a silence for an hour or can we just create
+		// a silence that should out live the healthchecks?
+		if silenceReq.ID == "" {
+			_, err = silenceReq.Build(60 * time.Minute).Send()
+			if err != nil {
+				log.Fatal(err)
+			}
+		}
+
 		healthy, err := isClusterHealthy(cleanCheckRuns, cleanCheckInterval)
 		if err != nil {
 			log.Fatal(err)
 		}
 
-		amSilence, err := silenceReq.FindExisting()
-		if err != nil {
-			log.Fatal(err)
-		}
-
 		if healthy {
-			if amSilence.ID != "" {
+			if silenceReq.Active() {
+				// TODO: There might be more than one silence to remove
 				err = silenceReq.Remove()
 				if err != nil {
 					log.Fatal(err)
@@ -130,19 +127,6 @@ func main() {
 				log.Println("Health checks passed and cluster was not silenced. Nothing to do here.")
 			}
 			os.Exit(0)
-		}
-
-		// If we got here, our cluster is unhealthy. Make sure our silence is active.
-		// We do this every time because the silence is set to expire automatically in an hour.
-		if silenceReq.ID == "" {
-			_, err = silenceReq.Build(1 * time.Hour).Create()
-			if err != nil {
-				log.Fatal(err)
-			}
-		} else if ok, _ := silenceReq.WillExpireBy(15 * time.Minute); ok {
-			log.Printf("End of health check silence will expire in 15 minutes")
-			log.Printf("Adding 5 minutes")
-			silenceReq.Build(15 * time.Minute).Create()
 		}
 
 		log.Printf("Health checks failed. Sleeping %d seconds before rechecking...\n", failedCheckInterval)

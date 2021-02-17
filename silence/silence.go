@@ -44,8 +44,11 @@ func NewSilenceRequest() *SilenceRequest {
 // FindExisting looks for an existing, active silence that was created by us. If found,
 // its ID is returned; otherwise the empty string is returned. The latter is not an
 // error condition.
+// TODO: Handle muliple silences being active, currently we'll return the first one we fine
+// that is active and created by `createdBy`
 func (sr *SilenceRequest) FindExisting() (*SilenceRequest, error) {
 	for i := 1; i <= 300; i++ { // try once a second or so for 5-ish minutes
+		log.Printf("Checking for silences")
 		cmdstr := "oc exec -n openshift-monitoring alertmanager-main-0 -c alertmanager -- curl --silent localhost:9093/api/v2/silences -X GET"
 		silenceGetCmd := exec.Command("bash", "-c", cmdstr)
 		silenceGetCmd.Stderr = os.Stderr
@@ -61,6 +64,7 @@ func (sr *SilenceRequest) FindExisting() (*SilenceRequest, error) {
 			log.Printf("There was an error unmarshalling get silence response")
 			return sr, err
 		}
+
 		if len(silences) == 0 {
 			log.Printf("No Silences Present")
 			return sr, nil
@@ -70,11 +74,15 @@ func (sr *SilenceRequest) FindExisting() (*SilenceRequest, error) {
 			if silence.CreatedBy != createdBy {
 				continue
 			}
-			if silence.Status.State != "active" {
+
+			if !silence.Active() {
 				log.Printf("Silence is not active.")
 				continue
 			}
-			log.Printf("Found silence created by job: %s", silence.ID)
+
+			sr = silence
+			log.Printf("Found silence created by job: %s", sr.ID)
+
 			return sr, nil
 		}
 
@@ -93,7 +101,9 @@ func (sr *SilenceRequest) Build(expiryPeriod time.Duration) *SilenceRequest {
 	allMatcher := matcher{}
 	allMatcher.Name = "severity"
 	// Match all alerts
-	allMatcher.Value = ".*"
+	// This doesn't work and should, maybe it needs better escaping?
+	// allMatcher.Value = ".*"
+	allMatcher.Value = "(Critical|Warning)"
 	allMatcher.IsRegex = true
 
 	sr.Matchers = []matcher{allMatcher}
@@ -105,18 +115,13 @@ func (sr *SilenceRequest) Build(expiryPeriod time.Duration) *SilenceRequest {
 	return sr
 }
 
-// Create adds a new silence that expires in one hour.
-func (sr *SilenceRequest) Create() (*SilenceRequest, error) {
+func (sr *SilenceRequest) Send() (*silenceResponse, error) {
 
 	silenceJSON, err := json.Marshal(sr)
 	if err != nil {
-		return sr, fmt.Errorf("There was an error marshalling JSON: %v", silenceJSON)
+		return nil, fmt.Errorf("There was an error marshalling JSON: %v", silenceJSON)
 	}
 
-	return sr, nil
-}
-
-func (sr *SilenceRequest) Send(silenceJSON []byte) (*silenceResponse, error) {
 	for {
 		// Attempt to run once every 30 seconds until this succeeds
 		// to account for if the alertmanager is not ready before
@@ -160,19 +165,22 @@ func (sr *SilenceRequest) Remove() error {
 
 // ExpiresIn returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
 func (sr *SilenceRequest) WillExpireBy(expiryPeriod time.Duration) (bool, error) {
-	// Parse start and end times of Alertmanager Silence
-	start, err := time.Parse(time.RFC3339, sr.StartsAt)
-	if err != nil {
-		return false, err
-	}
+	// Parse end time of Alertmanager Silence
 	end, err := time.Parse(time.RFC3339, sr.EndsAt)
 	if err != nil {
 		return false, err
 	}
 
 	// Find the remaining time left on the silence
-	remaining := end.Sub(start)
+	remaining := end.Sub(time.Now())
+
+	log.Printf("Time remaining on active silence: %s\n", remaining)
 
 	// Return bool if the remaining time is less than the expiryPeriod
 	return remaining < expiryPeriod, nil
+}
+
+// Active returns a bool if the silence is Active
+func (sr *SilenceRequest) Active() bool {
+	return sr.Status.State == "active"
 }
