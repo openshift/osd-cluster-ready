@@ -1,4 +1,4 @@
-module github.com/openshift/osd-cluster-ready-job
+module github.com/openshift/osd-cluster-ready
 
 go 1.15
 

@@ -11,8 +11,8 @@ import (
 
 const createdBy = "OSD Cluster Readiness Job"
 
-// SilenceRequest represents a Alertmanager silence request object
-type SilenceRequest struct {
+// Request represents an Alertmanager silence request object
+type Request struct {
 	ID        string       `json:"id"`
 	Status    silenceState `json:"status"`
 	Matchers  []matcher    `json:"matchers"`
@@ -32,14 +32,15 @@ type matcher struct {
 	IsRegex bool   `json:"isRegex"`
 }
 
-type getSilenceResponse []*SilenceRequest
+type getSilenceResponse []*Request
 
 type silenceResponse struct {
 	ID string `json:"silenceID"`
 }
 
-func NewSilenceRequest() *SilenceRequest {
-	return &SilenceRequest{}
+// New returns a new silence request object
+func New() *Request {
+	return &Request{}
 }
 
 // FindExisting looks for an existing, active silence that was created by us. If found,
@@ -47,7 +48,7 @@ func NewSilenceRequest() *SilenceRequest {
 // error condition.
 // TODO: Handle muliple silences being active, currently we'll return the first one we fine
 // that is active and created by `createdBy`
-func (sr *SilenceRequest) FindExisting() (*SilenceRequest, error) {
+func (sr *Request) FindExisting() (*Request, error) {
 	for i := 1; i <= 300; i++ { // try once a second or so for 5-ish minutes
 		log.Printf("Checking for silences")
 		cmdstr := "oc exec -n openshift-monitoring alertmanager-main-0 -c alertmanager -- curl --silent localhost:9093/api/v2/silences -X GET"
@@ -94,7 +95,7 @@ func (sr *SilenceRequest) FindExisting() (*SilenceRequest, error) {
 	return sr, fmt.Errorf("unable to get a list of existing silences")
 }
 
-func (sr *SilenceRequest) Build(expiryPeriod time.Duration) *SilenceRequest {
+func (sr *Request) Build(expiryPeriod time.Duration) *Request {
 	// Create the Silence
 	now := time.Now().UTC()
 	end := now.Add(expiryPeriod)
@@ -113,7 +114,7 @@ func (sr *SilenceRequest) Build(expiryPeriod time.Duration) *SilenceRequest {
 	return sr
 }
 
-func (sr *SilenceRequest) Send() (*silenceResponse, error) {
+func (sr *Request) Send() (*silenceResponse, error) {
 
 	silenceJSON, err := json.Marshal(sr)
 	if err != nil {
@@ -143,7 +144,7 @@ func (sr *SilenceRequest) Send() (*silenceResponse, error) {
 }
 
 // Remove deletes the silence with the given sr.ID
-func (sr *SilenceRequest) Remove() error {
+func (sr *Request) Remove() error {
 	log.Printf("Removing Silence %s\n", sr.ID)
 	for i := 0; i < 5; i++ {
 		// Attempt up to 5 times to unsilence the cluster
@@ -162,7 +163,7 @@ func (sr *SilenceRequest) Remove() error {
 }
 
 // WillExpireBy returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
-func (sr *SilenceRequest) WillExpireBy(expiryPeriod time.Duration) (bool, error) {
+func (sr *Request) WillExpireBy(expiryPeriod time.Duration) (bool, error) {
 	// Parse end time of Alertmanager Silence
 	end, err := time.Parse(time.RFC3339, sr.EndsAt)
 	if err != nil {
@@ -179,6 +180,6 @@ func (sr *SilenceRequest) WillExpireBy(expiryPeriod time.Duration) (bool, error)
 }
 
 // Active returns a bool if the silence is Active
-func (sr *SilenceRequest) Active() bool {
-	return sr.Status.State == "active"
+func (sr *Request) Active() bool {
+	return sr.ID != "" && sr.Status.State == "active"
 }

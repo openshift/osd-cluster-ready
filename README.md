@@ -23,8 +23,7 @@ until they all report healthy 20 times in a row ([configurable](#clean_check_run
 on 30s intervals ([configurable](#clean_check_interval_seconds)).
 By default, we will clear any active silence and exit successfully if the cluster is (or becomes) more than two hours old ([configurable](#max_cluster_age_minutes)).
 
-If the silence expires while health checks are failing, we reinstate it.
-(This means it is theoretically possible for alerts to fire for up to one minute if the silence expires right after a health check fails. [FIXME](#to-do).)
+If we think the silence might expire while health checks are running, we extend it.
 
 ## Deploying
 
@@ -122,6 +121,6 @@ Don't forget to [build](#deploying-the-image) and [test](#deploying-the-job) wit
 
 - [x] Look for existing active silences before creating a new one
 - [x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
+- [x] Make the default silence expiry shorter; and extend it when health checks fail ([OSD-6384](https://issues.redhat.com/browse/OSD-6384)).
 - [ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.
-- [ ] Make the default silence expiry shorter; and extend it when health checks fail ([OSD-6384](https://issues.redhat.com/browse/OSD-6384)).
 - [ ] Make [tunables](#tunables) configurable via `make deploy`.
