@@ -1,8 +1,10 @@
 # OSD Cluster Readiness Job
 
 - [OSD Cluster Readiness Job](#osd-cluster-readiness-job)
-  - [Deploying the Image](#deploying-the-image)
-  - [Deploying the Job](#deploying-the-job)
+  - [Deploying](#deploying)
+    - [Build the Image](#build-the-image)
+    - [Deploy the Job](#deploy-the-job)
+    - [Example](#example)
   - [Tunables](#tunables)
     - [`MAX_CLUSTER_AGE_MINUTES`](#max_cluster_age_minutes)
     - [`CLEAN_CHECK_RUNS`](#clean_check_runs)
@@ -24,26 +26,57 @@ By default, we will clear any active silence and exit successfully if the cluste
 If the silence expires while health checks are failing, we reinstate it.
 (This means it is theoretically possible for alerts to fire for up to one minute if the silence expires right after a health check fails. [FIXME](#to-do).)
 
-## Deploying the Image
+## Deploying
+
+### Build the Image
 
 ```
-make build
-make docker-build
-make docker-push
+make image-build
+make image-push
 ```
 
-This builds the binary for linux, builds the docker image (which requires the binary to be built externally as of right now) and then pushes the updated image to quay.
+This builds the binary for linux, builds the docker image, and then pushes the image to a repository.
 
-If you wish to push to a specific repository, org, or image name, you may override the `IMAGE_REPO`, `IMAGE_ORG`, or `IMAGE_NAME` variables, respectively, when invoking the `docker-build` and `docker-push` targets.
-For example, for development purposes, you may wish to `export IMAGE_ORG=my_quay_namespace`.
+If you wish to push to a specific registry, repository, or image name, you may override the `IMAGE_REGISTRY`, `IMAGE_USER`, or `IMAGE_NAME` variables, respectively, when invoking the `image-build` and `image-push` targets.
+For example, for development purposes, you may wish to `export IMAGE_USER=my_quay_user`.
+See the [Makefile](Makefile) for the default values.
 
-## Deploying the Job
+### Deploy the Job
 
-Deploy each of the manifests in the [deploy/](deploy) folder in alphanumeric order.
+```
+make deploy
+```
 
-If you are overriding any of the `IMAGE_*` variables for development purposes, be sure to (temporarily) edit the [Job](deploy/60-osd-ready.Job.yaml), setting the `image` appropriately.
+This will do the following on your currently logged-in cluster. **NOTE:** You must have elevated permissions.
+- Delete any existing `osd-cluster-ready` Job.
+- Deploy each of the manifests in the [deploy/](deploy) folder in alphanumeric order, except the [Job](deploy/60-osd-ready.Job.yaml) itself.
+- Create a temporary Job manifest with the following overrides, and deploy it:
+  - The `image` is set using any of the `IMAGE_*` overrides described above.
+  - The [`MAX_CLUSTER_AGE_MINUTES` environment variable](#max_cluster_age_minutes) is set to a high value to prevent the job from exiting early. ([FIXME: make this configurable](#to-do).)
+- Wait for the Job's Pod to start and follow its logs.
 
-You can iterate by deleting the Job (which will delete its Pod) and recreating it.
+In addition to the `IMAGE_*` overrides, `make deploy` will also observe the following environment variables:
+- `JOB_ONLY`: If set (to any `true`-ish value), only deploy the overridden Job manifest.
+  Use this to streamline the deployment process if the other manifests (RBAC, etc.) are already deployed and unchanged.
+- `DRY_RUN`: Don't actually do anything to the cluster; just print the overridden Job manifest and the commands that _would_ have been run.
+
+### Example
+
+Build, push to, and deploy from my personal namespace, `i_am_a_docker`, in the docker.io registry, skipping RBAC manifests, and first doing a dry run:
+
+```
+# Set these in the environment to save passing them to each `make` command.
+export IMAGE_REGISTRY=docker.io
+export IMAGE_USER=i_am_a_docker
+
+make image-build image-push
+
+# Do a deploy dry run first
+make JOB_ONLY=1 DRY_RUN=1 deploy
+
+# Now deploy for real
+make JOB_ONLY=1 deploy
+```
 
 ## Tunables
 The following environment variables can be set in the container, e.g. by editing the [Job](deploy/60-osd-ready.Job.yaml) to include them in `spec.template.spec.containers[0].env`.
@@ -91,3 +124,4 @@ Don't forget to [build](#deploying-the-image) and [test](#deploying-the-job) wit
 - [x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
 - [ ] Find if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.
 - [ ] Make the default silence expiry shorter; and extend it when health checks fail ([OSD-6384](https://issues.redhat.com/browse/OSD-6384)).
+- [ ] Make [tunables](#tunables) configurable via `make deploy`.
