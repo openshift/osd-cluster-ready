@@ -48,7 +48,11 @@ fi
 
 # Before deploying the new job, make sure the pod from the old one is gone
 if [[ $WAIT_FOR_POD == "yes" ]]; then
-  maybe oc wait --for=delete pod -l job-name=osd-cluster-ready --timeout=30s
+  # FIXME: This can fail for two reasons:
+  # - Timeout, in which case we want to blow up.
+  # - The pod already disappeared, in which case we want to proceed.
+  # Scraping the output is icky. For now, just ignore errors.
+  maybe oc wait --for=delete pod -l job-name=osd-cluster-ready --timeout=30s || true
 fi
 
 maybe oc create -f $TMP_MANIFEST
