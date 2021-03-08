@@ -66,11 +66,15 @@ func main() {
 		log.Fatal(err)
 	}
 
-	// maxHealthCheckDurationMinutes is a heuristic for how long the full health check
+	// maxHealthCheckDuration is a heuristic for how long the full health check
 	// loop should take. This is used to push out the expiry of active silences to make
-	// sure they don't expire while we're in that loop; so err on the high side.
-	// TODO: Use above vars to calculate this
-	maxHealthCheckDurationMinutes := 15
+	// sure they don't expire while we're in that loop; so err on the high side:
+	// - One run of health checks is pretty fast -- anecdotally sub-second -- but give it
+	//   ten seconds.
+	// - Add failedCheckInterval since we do that sleep *after* a failed health check.
+	// - Add another two minutes of fudge factor.
+	maxHealthCheckDuration := time.Duration(cleanCheckRuns * (cleanCheckInterval + 10) + failedCheckInterval + 120) * time.Second
+	log.Printf("Using a silence expiry window of %s.", maxHealthCheckDuration)
 
 	for {
 
@@ -98,10 +102,9 @@ func main() {
 			// - This is the first iteration of the loop. The vast majority of the time
 			//   this is the first ever run of the job, and it's happening shortly after
 			//   the birth of the cluster.
-			// - The previous iteration took longer than maxHealthCheckDurationMinutes
+			// - The previous iteration took longer than maxHealthCheckDuration
 			//   and the previously-created silence expired.
-			// TODO: Use maxHealthCheckDurationMinutes instead of 1h.
-			_, err = silenceReq.Build(60 * time.Minute).Send()
+			_, err = silenceReq.Build(maxHealthCheckDuration).Send()
 			if err != nil {
 				log.Fatal(err)
 			}
@@ -109,14 +112,17 @@ func main() {
 		} else {
 			// If there is an existing silence, ensure it's not going to expire before
 			// our healthchecks are complete.
-			if ok, _ := silenceReq.WillExpireBy(time.Duration(maxHealthCheckDurationMinutes) * time.Minute); ok {
-				log.Printf("Silence will expire within %d minutes", maxHealthCheckDurationMinutes)
-				log.Printf("Creating new silence")
-				_, err = silenceReq.Build(time.Duration(maxHealthCheckDurationMinutes) * time.Minute).Send()
+			willExpire, err := silenceReq.WillExpireBy(maxHealthCheckDuration)
+			if err != nil {
+				log.Fatal(err)
+			}
+			if willExpire {
+				log.Printf("Silence expires in less than %s. Extending.", maxHealthCheckDuration)
+				// Creating a new silence automatically expires the existing one(s).
+				_, err = silenceReq.Build(maxHealthCheckDuration).Send()
 				if err != nil {
 					log.Fatal(err)
 				}
-				// TODO: Delete the old silence
 			}
 		}
 
@@ -126,14 +132,15 @@ func main() {
 		}
 
 		if healthy {
-			if silenceReq.Active() {
-				// TODO: There might be more than one silence to remove
-				err = silenceReq.Remove()
-				if err != nil {
-					log.Fatal(err)
-				}
-			} else {
-				log.Println("Health checks passed and cluster was not silenced. Nothing to do here.")
+			// Use this to log how much time was left in the active silence. This can
+			// help us fine-tune maxHealthCheckDuration in the future.
+			// TODO: If this is negative, it has already expired and we don't have to
+			// remove it. But WillExpireBy would have to tell us that somehow.
+			_, err = silenceReq.WillExpireBy(maxHealthCheckDuration)
+			// TODO: There might be more than one silence to remove
+			err = silenceReq.Remove()
+			if err != nil {
+				log.Fatal(err)
 			}
 			os.Exit(0)
 		}

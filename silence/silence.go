@@ -78,7 +78,7 @@ func (sr *Request) FindExisting() (*Request, error) {
 			}
 
 			if !silence.Active() {
-				log.Printf("Silence is not active.")
+				log.Printf("Silence %s is not active.", silence.ID)
 				continue
 			}
 
@@ -162,7 +162,9 @@ func (sr *Request) Remove() error {
 	return fmt.Errorf("there was an error unsilencing the cluster")
 }
 
-// WillExpireBy returns bool if the remaining time on the AlertManager Silence is less than the expiryPeriod
+// WillExpireBy returns:
+// - bool: true if the remaining time on the AlertManager Silence is less than the expiryPeriod.
+// - error: nil unless the silence request's end time can't be parsed.
 func (sr *Request) WillExpireBy(expiryPeriod time.Duration) (bool, error) {
 	// Parse end time of Alertmanager Silence
 	end, err := time.Parse(time.RFC3339, sr.EndsAt)
