@@ -1,27 +1,22 @@
-# OSD Cluster Readiness Job
+# OSD Cluster Readiness
 
-- [OSD Cluster Readiness Job](#osd-cluster-readiness-job)
+- [OSD Cluster Readiness](#osd-cluster-readiness)
   - [Deploying](#deploying)
     - [Build the Image](#build-the-image)
-    - [Deploy the Job](#deploy-the-job)
+    - [Deploy](#deploy)
     - [Example](#example)
   - [Tunables](#tunables)
-    - [`MAX_CLUSTER_AGE_MINUTES`](#max_cluster_age_minutes)
     - [`CLEAN_CHECK_RUNS`](#clean_check_runs)
     - [`CLEAN_CHECK_INTERVAL_SECONDS`](#clean_check_interval_seconds)
     - [`FAILED_CHECK_INTERVAL_SECONDS`](#failed_check_interval_seconds)
   - [Keeping up with osde2e](#keeping-up-with-osde2e)
 - [TO DO](#to-do)
 
-This job silences alerts while Day2 configuration is loaded onto a cluster at initial provisioning, allowing it to not page on-call SREs for normal operations within the cluster.
-
-We poll cluster health using [osde2e health checks](https://github.com/openshift/osde2e/blob/041355675304a7aa371b7fbeea313001036feb75/pkg/common/cluster/clusterutil.go#L211)
+This program polls cluster health using [osde2e health checks](https://github.com/openshift/osde2e/blob/041355675304a7aa371b7fbeea313001036feb75/pkg/common/cluster/clusterutil.go#L211)
 once a minute (this is [configurable](#failed_check_interval_seconds)),
 until they all report healthy 20 times in a row ([configurable](#clean_check_runs))
 on 30s intervals ([configurable](#clean_check_interval_seconds)).
-By default, we will clear any active silence and exit successfully if the cluster is (or becomes) more than two hours old ([configurable](#max_cluster_age_minutes)).
-
-We base the duration of the silence on the estimated maximum time we think it should take for the full health check sequence to run, extending it as necessary.
+By default, we will exit successfully if the cluster is (or becomes) more than two hours old ([configurable](#max_cluster_age_minutes)).
 
 ## Deploying
 
@@ -38,7 +33,9 @@ If you wish to push to a specific registry, repository, or image name, you may o
 For example, for development purposes, you may wish to `export IMAGE_USER=my_quay_user`.
 See the [Makefile](Makefile) for the default values.
 
-### Deploy the Job
+### Deploy
+**NOTE:** In OSD, this program is managed by [configure-alertmanager-operator](https://github.com/openshift/configure-alertmanager-operator) via a Job it [defines internally](https://github.com/openshift/configure-alertmanager-operator/blob/master/pkg/readiness/defs/osd-cluster-ready.Job.yaml).
+In order to test locally, that needs to be disabled. (**TODO: How?**)
 
 ```
 make deploy
@@ -80,11 +77,6 @@ The following environment variables can be set in the container, e.g. by editing
 
 Remember that the values must be strings; so numeric values must be quoted.
 
-### `MAX_CLUSTER_AGE_MINUTES`
-The maximum age of the cluster, in minutes, after which we will clear any silences and exit "successfully".
-
-**Default:** `"120"` (two hours)
-
 ### `CLEAN_CHECK_RUNS`
 The number of consecutive health checks that must succeed before we declare the cluster truly healthy.
 
@@ -117,8 +109,5 @@ Don't forget to [build](#deploying-the-image) and [test](#deploying-the-job) wit
 
 # TO DO
 
-- [x] Look for existing active silences before creating a new one
 - [x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
-- [x] Make the default silence expiry shorter; and extend it when health checks fail ([OSD-6384](https://issues.redhat.com/browse/OSD-6384)).
-- [ ] Find out if there's a better and more secure way to talk to the alertmanager API using oauth and serviceaccount tokens.
 - [ ] Make [tunables](#tunables) configurable via `make deploy`.
