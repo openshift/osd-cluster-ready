@@ -26,7 +26,6 @@ fi
 TMP_MANIFEST=$(mktemp -t osd-cluster-ready-Job.XXXXX.yaml)
 trap "rm -fr $TMP_MANIFEST" EXIT
 sed "s,\(^ *image: \).*,\1${IMAGE_URI}," deploy/60-osd-ready.Job.yaml > $TMP_MANIFEST
-sed -i 's/value: "240"/value: "339860"/' $TMP_MANIFEST
 echo "===== $TMP_MANIFEST ====="
 cat $TMP_MANIFEST
 echo "========================="

@@ -16,7 +16,6 @@ This program polls cluster health using [osde2e health checks](https://github.co
 once a minute (this is [configurable](#failed_check_interval_seconds)),
 until they all report healthy 20 times in a row ([configurable](#clean_check_runs))
 on 30s intervals ([configurable](#clean_check_interval_seconds)).
-By default, we will exit successfully if the cluster is (or becomes) more than two hours old ([configurable](#max_cluster_age_minutes)).
 
 ## Deploying
 
@@ -34,8 +33,8 @@ For example, for development purposes, you may wish to `export IMAGE_USER=my_qua
 See the [Makefile](Makefile) for the default values.
 
 ### Deploy
-**NOTE:** In OSD, this program is managed by [configure-alertmanager-operator](https://github.com/openshift/configure-alertmanager-operator) via a Job it [defines internally](https://github.com/openshift/configure-alertmanager-operator/blob/master/pkg/readiness/defs/osd-cluster-ready.Job.yaml).
-In order to test locally, that needs to be disabled. (**TODO: How?**)
+**NOTE:** In OSD, this program is managed by a Job deployed to the cluster from Hive via a SelectorSyncSet maintained in [managed-cluster-config](https://github.com/openshift/managed-cluster-config/tree/01332ca90e15cd9a0d67cdcc596f538fa8869dbb/deploy/osd-cluster-ready).
+In order to prevent overwrites during testing, you must [pause hive syncing](https://github.com/openshift/ops-sop/blob/master/v4/knowledge_base/pause-syncset.md).
 
 ```
 make deploy
@@ -44,9 +43,7 @@ make deploy
 This will do the following on your currently logged-in cluster. **NOTE:** You must have elevated permissions.
 - Delete any existing `osd-cluster-ready` Job.
 - Deploy each of the manifests in the [deploy/](deploy) folder in alphanumeric order, except the [Job](deploy/60-osd-ready.Job.yaml) itself.
-- Create a temporary Job manifest with the following overrides, and deploy it:
-  - The `image` is set using any of the `IMAGE_*` overrides described above.
-  - The [`MAX_CLUSTER_AGE_MINUTES` environment variable](#max_cluster_age_minutes) is set to a high value to prevent the job from exiting early. ([FIXME: make this configurable](#to-do).)
+- Create a temporary Job manifest, overriding the `image` using the `IMAGE_*` variables described above, and deploy it.
 - Wait for the Job's Pod to start and follow its logs.
 
 In addition to the `IMAGE_*` overrides, `make deploy` will also observe the following environment variables:
