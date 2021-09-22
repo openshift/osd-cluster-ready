@@ -5,7 +5,7 @@ go 1.15
 require (
 	github.com/gobuffalo/here v0.6.2 // indirect
 	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/openshift/osde2e v0.0.0-20210921174243-766bf7d83f94
+	github.com/openshift/osde2e v0.0.0-20210922121628-95da1ed975e5
 )
 
 replace (

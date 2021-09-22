@@ -1306,8 +1306,8 @@ github.com/openshift/managed-upgrade-operator v0.0.0-20210728104325-95212635e5e1
 github.com/openshift/operator-custom-metrics v0.3.0/go.mod h1:4k6G9+KHKg6r/ShP8Vi9YFnpJ5fbHPkQsYCUlzMwtYQ=
 github.com/openshift/operator-custom-metrics v0.4.2/go.mod h1:pF8VqYYaJrZo780/ebeMDcaI20ETzJuUSDHGXSzjWwk=
 github.com/openshift/origin v0.0.0-20160503220234-8f127d736703/go.mod h1:0Rox5r9C8aQn6j1oAOQ0c1uC86mYbUFObzjBRvUKHII=
-github.com/openshift/osde2e v0.0.0-20210921174243-766bf7d83f94 h1:Hkf6Vo9pnQ12NP3xUHLTvXKO8lTAl43F8iCPr+RY2fA=
-github.com/openshift/osde2e v0.0.0-20210921174243-766bf7d83f94/go.mod h1:oIXxOpsE/ozZCKqX+OMhDJjJDnJBqXaCXILG1EVXudY=
+github.com/openshift/osde2e v0.0.0-20210922121628-95da1ed975e5 h1:W5ojB8DyYb7dtYY4t+dVT9MMlAq+tkUifT/ewEa48lY=
+github.com/openshift/osde2e v0.0.0-20210922121628-95da1ed975e5/go.mod h1:oIXxOpsE/ozZCKqX+OMhDJjJDnJBqXaCXILG1EVXudY=
 github.com/openshift/prom-label-proxy v0.1.1-0.20191016113035-b8153a7f39f1/go.mod h1:p5MuxzsYP1JPsNGwtjtcgRHHlGziCJJfztff91nNixw=
 github.com/openshift/rosa v1.1.0 h1:NUB4VZrRTAnKap2Rmdqo5sTtQE48ufGkEDJswYjYFSY=
 github.com/openshift/rosa v1.1.0/go.mod h1:D7zI0RFIRy6UJsXb0BD36DKOJXM7Ir6rnYonwQcfnQ0=
