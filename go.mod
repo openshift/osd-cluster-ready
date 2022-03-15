@@ -3,9 +3,8 @@ module github.com/openshift/osd-cluster-ready
 go 1.15
 
 require (
-	github.com/gobuffalo/here v0.6.2 // indirect
-	github.com/hashicorp/golang-lru v0.5.4 // indirect
-	github.com/openshift/osde2e v0.0.0-20210922121628-95da1ed975e5
+	github.com/gobuffalo/here v0.6.5 // indirect
+	github.com/openshift/osde2e v0.0.0-20220317163824-8b18e90e1039
 )
 
 replace (
