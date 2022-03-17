@@ -61,7 +61,6 @@ if [[ -z "$DRY_RUN" ]]; then
 else
   POD=osd-cluster-ready-XXXXX
 fi
-echo $POD
 
 maybe oc wait --for=condition=Ready -n openshift-monitoring $POD --timeout=15s
 if [[ $? -eq 0 ]]; then
