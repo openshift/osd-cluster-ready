@@ -57,12 +57,13 @@ fi
 maybe oc create -f $TMP_MANIFEST
 
 if [[ -z "$DRY_RUN" ]]; then
-  POD=$(oc get po -l job-name=osd-cluster-ready -o name)
+  POD=$(oc get po -n openshift-monitoring -l job-name=osd-cluster-ready -o name)
 else
   POD=osd-cluster-ready-XXXXX
 fi
+echo $POD
 
-maybe oc wait --for=condition=Ready $POD --timeout=15s
+maybe oc wait --for=condition=Ready -n openshift-monitoring $POD --timeout=15s
 if [[ $? -eq 0 ]]; then
   maybe oc logs -f jobs/osd-cluster-ready -n openshift-monitoring
 fi
