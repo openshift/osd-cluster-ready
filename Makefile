@@ -25,7 +25,7 @@ export IMAGE_URI
 
 .PHONY: build
 build:
-	GOOS=linux go build -o ./bin/main main.go
+	GOOS=linux go build -ldflags="-s -w" -o ./bin/main main.go
 
 .PHONY: image-build
 image-build: build
