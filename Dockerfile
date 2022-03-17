@@ -1,12 +1,3 @@
-FROM registry.access.redhat.com/ubi8/ubi-minimal:latest
+FROM registry.access.redhat.com/ubi8/ubi-micro:latest
 
-RUN microdnf install \
-    gzip \
-    jq \
-    tar \
-    wget
-
-ADD dockerbuild /root/build
-RUN /root/build/install-oc.sh
-
-ADD bin/main /root/main
+COPY bin/main /root/main
