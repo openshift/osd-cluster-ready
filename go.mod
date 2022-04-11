@@ -4,7 +4,7 @@ go 1.15
 
 require (
 	github.com/gobuffalo/here v0.6.5 // indirect
-	github.com/openshift/osde2e v0.0.0-20220318152240-69b5e67d675c
+	github.com/openshift/osde2e v0.0.0-20220411124348-20f4ff0e6468
 )
 
 replace (

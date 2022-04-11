@@ -1394,6 +1394,8 @@ github.com/opencontainers/selinux v1.5.2/go.mod h1:yTcKuYAh6R95iDpefGLQaPaRwJFwy
 github.com/openshift-online/ocm-sdk-go v0.1.199/go.mod h1:RNoKwEJaFMJJvKWKPzv5iQvRau/eHL7py6eOhCgnfwU=
 github.com/openshift-online/ocm-sdk-go v0.1.238 h1:pB8h4nHeOHpD3zzhUVQ2a8Hz439DgdyIWGFOeNz4FNU=
 github.com/openshift-online/ocm-sdk-go v0.1.238/go.mod h1:nHYjrmvR9L7KSRZukysau62iEHKJOQYFhlceqaVAV1Y=
+github.com/openshift-online/ocm-sdk-go v0.1.257 h1:sgWGltYBNrz6ULnbSs2dUm75QBMeGkTUIGPEMz8J4VY=
+github.com/openshift-online/ocm-sdk-go v0.1.257/go.mod h1:nHYjrmvR9L7KSRZukysau62iEHKJOQYFhlceqaVAV1Y=
 github.com/openshift/api v0.0.0-20200526144822-34f54f12813a h1:riE/kCXnb051RWT/z+DytxKEZ3+JromVDl79rXAKyFY=
 github.com/openshift/api v0.0.0-20200526144822-34f54f12813a/go.mod h1:l6TGeqJ92DrZBuWMNKcot1iZUHfbYSJyBWHGgg6Dn6s=
 github.com/openshift/build-machinery-go v0.0.0-20200211121458-5e3d6e570160/go.mod h1:1CkcsT3aVebzRBzVTSbiKSkJMsC/CASqxesfqEMfJEc=
@@ -1425,6 +1427,8 @@ github.com/openshift/osde2e v0.0.0-20220318033957-dbcfb9f8fa80 h1:UdKjSF6l0JvwkG
 github.com/openshift/osde2e v0.0.0-20220318033957-dbcfb9f8fa80/go.mod h1:+QM7QHaO/uX/DeBRcYzrRX3zsRzCUha3xrs04mHw6UQ=
 github.com/openshift/osde2e v0.0.0-20220318152240-69b5e67d675c h1:nBz8gonjYM87MK5WPM43X5o60ikt3aRLN6b0VWtV7w4=
 github.com/openshift/osde2e v0.0.0-20220318152240-69b5e67d675c/go.mod h1:+QM7QHaO/uX/DeBRcYzrRX3zsRzCUha3xrs04mHw6UQ=
+github.com/openshift/osde2e v0.0.0-20220411124348-20f4ff0e6468 h1:UtdOOU/IGAOObrJ5KsCu7CnhlUWWMBT8uEOavfi4VF4=
+github.com/openshift/osde2e v0.0.0-20220411124348-20f4ff0e6468/go.mod h1:317qeIK0xkPpaJG5Ib1xjlDd06DORgC1UWljAL2Z7Ds=
 github.com/openshift/prom-label-proxy v0.1.1-0.20191016113035-b8153a7f39f1/go.mod h1:p5MuxzsYP1JPsNGwtjtcgRHHlGziCJJfztff91nNixw=
 github.com/openshift/rosa v1.1.3-0.20210915184258-dd4fe43a0f71 h1:LE33tZm+cobxVGJ9vjWhhYrGxvmomjRuReamz08/XLA=
 github.com/openshift/rosa v1.1.3-0.20210915184258-dd4fe43a0f71/go.mod h1:XB1sbMKBrlLjbGg+2pIRFjQ1RShtVi7B8HYk4D/7izg=
