@@ -1,5 +1,6 @@
 .swp
 .lck
-bin/*
+bin/osd-cluster-ready
 
+.docker/*
 .vscode/*

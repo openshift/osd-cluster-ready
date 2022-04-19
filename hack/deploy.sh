@@ -4,7 +4,7 @@ usage() {
   cat <<EOF
 Usage: $0
 Environment:
-  IMAGE_URI (required): E.g. quay.io/my_repo/osd-cluster-ready:0.1.38-614bf59
+  IMAGE_URI_VERSION (required): E.g. quay.io/my_repo/osd-cluster-ready:0.1.38-614bf59
   JOB_ONLY (optional): If set, only deploy the Job manifest (skip RBAC etc.).
   DRY_RUN (optional): If set, don't actually deploy anything, just print what would have happened.
 EOF
@@ -18,14 +18,14 @@ maybe() {
   fi
 }
 
-if [[ -z "$IMAGE_URI" ]]; then
-  echo "IMAGE_URI not set"
+if [[ -z "$IMAGE_URI_VERSION" ]]; then
+  echo "IMAGE_URI_VERSION not set"
   usage
 fi
 
 TMP_MANIFEST=$(mktemp -t osd-cluster-ready-Job.XXXXX.yaml)
 trap "rm -fr $TMP_MANIFEST" EXIT
-sed "s,\(^ *image: \).*,\1${IMAGE_URI}," deploy/60-osd-ready.Job.yaml > $TMP_MANIFEST
+sed "s,\(^ *image: \).*,\1${IMAGE_URI_VERSION}," deploy/60-osd-ready.Job.yaml > $TMP_MANIFEST
 echo "===== $TMP_MANIFEST ====="
 cat $TMP_MANIFEST
 echo "========================="

@@ -21,22 +21,22 @@ on 30s intervals ([configurable](#clean_check_interval_seconds)).
 
 ### Build the Image
 
-```
-make image-build
-make image-push
+```bash
+make docker-build
+make docker-push
 ```
 
-This builds the binary for linux, builds the docker image, and then pushes the image to a repository.
+This builds the docker image, and then pushes the image to a repository.
 
-If you wish to push to a specific registry, repository, or image name, you may override the `IMAGE_REGISTRY`, `IMAGE_USER`, or `IMAGE_NAME` variables, respectively, when invoking the `image-build` and `image-push` targets.
-For example, for development purposes, you may wish to `export IMAGE_USER=my_quay_user`.
-See the [Makefile](Makefile) for the default values.
+If you wish to push to a specific registry, repository, or image name, you may override the `IMAGE_REGISTRY`, `IMAGE_REPOSITORY`, or `IMAGE_NAME` variables, respectively, when invoking the `docker-build` and `docker-push` targets.
+For example, for development purposes, you may wish to `export IMAGE_REPOSITORY=my_quay_user`.
+See the [boilerplate/project.mk](boilerplate/project.mk) for the default values.
 
 ### Deploy
 **NOTE:** In OSD, this program is managed by a Job deployed to the cluster from Hive via a SelectorSyncSet maintained in [managed-cluster-config](https://github.com/openshift/managed-cluster-config/tree/01332ca90e15cd9a0d67cdcc596f538fa8869dbb/deploy/osd-cluster-ready).
 In order to prevent overwrites during testing, you must [pause hive syncing](https://github.com/openshift/ops-sop/blob/master/v4/knowledge_base/pause-syncset.md).
 
-```
+```bash
 make deploy
 ```
 
@@ -106,5 +106,4 @@ Don't forget to [build](#deploying-the-image) and [test](#deploying-the-job) wit
 
 # TO DO
 
-- [x] Implement _actual_ healthchecks (steal them from osde2e) to determine cluster stability
 - [ ] Make [tunables](#tunables) configurable via `make deploy`.
