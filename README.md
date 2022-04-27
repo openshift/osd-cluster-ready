@@ -19,20 +19,23 @@ on 30s intervals ([configurable](#clean_check_interval_seconds)).
 
 ## Deploying
 
+This repo subscribes to the osd-container-image boilerplate convention. Deatiled information about its usage and make targets are available in its [README.md](./boilerplate/openshift/osd-container-image/README.md)
+
 ### Build the Image
 
-```
-make image-build
-make image-push
+```bash
+make osd-container-image-build
+make osd-container-image-push
 ```
 
 This builds the binary for linux, builds the docker image, and then pushes the image to a repository.
 
-If you wish to push to a specific registry, repository, or image name, you may override the `IMAGE_REGISTRY`, `IMAGE_USER`, or `IMAGE_NAME` variables, respectively, when invoking the `image-build` and `image-push` targets.
-For example, for development purposes, you may wish to `export IMAGE_USER=my_quay_user`.
+If you wish to push to a specific registry, repository, or image name, you may override the `IMAGE_REGISTRY`, `IMAGE_REPOSITORY`, or `IMAGE_NAME` variables, respectively, when invoking the `osd-container-image-build` and `osd-container-image-push` targets.
+For example, for development purposes, you may wish to `export IMAGE_REPOSITORY=my_quay_user`.
 See the [Makefile](Makefile) for the default values.
 
 ### Deploy
+
 **NOTE:** In OSD, this program is managed by a Job deployed to the cluster from Hive via a SelectorSyncSet maintained in [managed-cluster-config](https://github.com/openshift/managed-cluster-config/tree/01332ca90e15cd9a0d67cdcc596f538fa8869dbb/deploy/osd-cluster-ready).
 In order to prevent overwrites during testing, you must [pause hive syncing](https://github.com/openshift/ops-sop/blob/master/v4/knowledge_base/pause-syncset.md).
 
