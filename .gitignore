@@ -2,5 +2,6 @@
 .lck
 bin/*
 
+.idea/*
 .vscode/*
 .docker/*
