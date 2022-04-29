@@ -11,6 +11,10 @@ include boilerplate/generated-includes.mk
 build:
 	GOOS=linux go build -mod=mod -ldflags="-s -w" -o ./bin/main main.go
 
+.PHONY: test
+test:
+	go test -v ./...
+
 .PHONY: deploy
 deploy:
 	hack/deploy.sh

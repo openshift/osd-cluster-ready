@@ -42,7 +42,7 @@ func main() {
 	}
 
 	for {
-		healthy, err := isClusterHealthy(cleanCheckRuns, cleanCheckInterval)
+		healthy, err := isClusterHealthy(cluster.PollClusterHealth, cleanCheckRuns, cleanCheckInterval)
 		if err != nil {
 			log.Fatal(err)
 		}
@@ -83,8 +83,8 @@ func getEnvInt(key string, def int) (int, error) {
 // Returns (true, err) if all health checks succeeded.
 // Returns (false, err) if any health check failed.
 // Iff an error occurs, err is non-nil.
-func doHealthCheck() (bool, error) {
-	status, failures, err := cluster.PollClusterHealth("", nil)
+func doHealthCheck(pollClusterHealth func(string, *log.Logger) (bool, []string, error)) (bool, error) {
+	status, failures, err := pollClusterHealth("", nil)
 	if err != nil {
 		log.Printf("Error(s) running health checks: %v\n", err)
 	}
@@ -102,20 +102,16 @@ func doHealthCheck() (bool, error) {
 // isClusterHealthy runs health checks multiple times, succeeding only if checks pass the requisite
 // number of consecutive times. We return failure immediately if any check fails, or if an error
 // occurs.
-func isClusterHealthy(cleanCheckRuns, cleanCheckInterval int) (bool, error) {
-	for i := 1; ; i++ {
+func isClusterHealthy(pollClusterHealth func(string, *log.Logger) (bool, []string, error), cleanCheckRuns, cleanCheckInterval int) (bool, error) {
+	for i := 1; i <= cleanCheckRuns; i++ {
 		log.Printf("======== Health Checks: %d of %d ========\n", i, cleanCheckRuns)
-		status, err := doHealthCheck()
-		if err != nil {
-			return false, err
-		}
-		if status && i >= cleanCheckRuns {
-			return true, nil
-		}
-		if !status {
-			return false, nil
+		healthy, err := doHealthCheck(pollClusterHealth)
+		if !healthy || err != nil {
+			return healthy, err
 		}
 		log.Printf("Sleeping %d seconds...\n", cleanCheckInterval)
 		time.Sleep(time.Duration(cleanCheckInterval) * time.Second)
 	}
+
+	return true, nil
 }
