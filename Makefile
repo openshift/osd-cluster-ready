@@ -9,11 +9,11 @@ include boilerplate/generated-includes.mk
 
 .PHONY: build
 build:
-	GOOS=linux go build -mod=mod -ldflags="-s -w" -o ./bin/main main.go
+	GOOS=linux go build -mod=readonly -ldflags="-s -w" -o ./bin/main main.go
 
 .PHONY: test
 test:
-	go test -v ./...
+	go test -mod=readonly -v ./...
 
 .PHONY: deploy
 deploy:
