@@ -6,6 +6,46 @@ import (
 	"testing"
 )
 
+func TestGetEnvInt(t *testing.T) {
+	t.Setenv("works", "0")
+	t.Setenv("default", "")
+	t.Setenv("error", "one")
+	defaultVal := -1
+
+	tests := []struct {
+		key       string
+		expected  int
+		expectErr bool
+	}{
+		{
+			key:       "works",
+			expected:  0,
+			expectErr: false,
+		},
+		{
+			key:       "default",
+			expected:  defaultVal,
+			expectErr: false,
+		},
+		{
+			key:       "error",
+			expectErr: true,
+		},
+	}
+
+	for _, test := range tests {
+		actual, err := getEnvInt(test.key, defaultVal)
+		if err != nil {
+			if !test.expectErr {
+				t.Fatal(err)
+			}
+		}
+		if test.expected != actual {
+			t.Fatalf("expected %d, got %d", test.expected, actual)
+		}
+	}
+}
+
 func fakeHealthyPollClusterHealth(string, *log.Logger) (bool, []string, error) {
 	return true, []string{}, nil
 }

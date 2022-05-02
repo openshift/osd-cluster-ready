@@ -72,7 +72,7 @@ func getEnvInt(key string, def int) (int, error) {
 	}
 
 	if intVal, err = strconv.Atoi(strVal); err != nil {
-		return 0, fmt.Errorf("Invalid value for env var: %s=%s (expected int): %v", key, strVal, err)
+		return 0, fmt.Errorf("invalid value for env var: %s=%s (expected int): %v", key, strVal, err)
 	}
 
 	return intVal, nil
