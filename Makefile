@@ -18,3 +18,7 @@ test:
 .PHONY: deploy
 deploy:
 	hack/deploy.sh
+
+.PHONY: lint
+lint:
+	golangci-lint run
