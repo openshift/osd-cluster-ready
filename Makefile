@@ -1,6 +1,10 @@
 # Project specific values
 IMAGE_NAME ?= osd-cluster-ready
 
+# GOLANGCI_LINT_CACHE needs to be set to a directory which is writeable
+# Relevant issue - https://github.com/golangci/golangci-lint/issues/734
+GOLANGCI_LINT_CACHE ?= /tmp/golangci-cache
+
 .PHONY: boilerplate-update
 boilerplate-update:
 	@boilerplate/update
@@ -21,4 +25,4 @@ deploy:
 
 .PHONY: lint
 lint:
-	golangci-lint run
+	GOLANGCI_LINT_CACHE=${GOLANGCI_LINT_CACHE} golangci-lint run --mod=readonly ./...
