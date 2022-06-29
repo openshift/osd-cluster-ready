@@ -6,6 +6,9 @@ run:
   # We're using a somewhat resource-constrained container in the CI
   # environment, so make this longish.
   timeout: 10m
+  # set this to readonly so it doesn't complain about the lack of a
+  # vendor directory
+  modules-download-mode: readonly
 
 issues:
   # We want to make sure we get a full report every time. Setting these
