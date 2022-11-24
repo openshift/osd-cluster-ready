@@ -1,6 +1,6 @@
 module github.com/openshift/osd-cluster-ready
 
-go 1.17
+go 1.19
 
 require github.com/openshift/osde2e v0.0.0-20220803144343-a30b1c22219f
 
