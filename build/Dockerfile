@@ -6,6 +6,6 @@ RUN go mod download
 COPY . .
 RUN make build
 
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.8-1
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.8-3
 
 COPY --from=builder /go/src/osd-cluster-ready/bin/main /root/
