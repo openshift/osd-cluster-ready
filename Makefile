@@ -17,6 +17,10 @@ build:
 test:
 	go test -mod=readonly -v ./...
 
+.PHONY: scan
+scan:
+	govulncheck ./...
+
 .PHONY: deploy
 deploy:
 	hack/deploy.sh
