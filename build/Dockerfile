@@ -1,4 +1,4 @@
-FROM registry.ci.openshift.org/openshift/release:golang-1.19 as builder
+FROM registry.ci.openshift.org/openshift/release:golang-1.21 as builder
 
 WORKDIR /go/src/osd-cluster-ready
 COPY go.mod go.sum ./
