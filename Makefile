@@ -1,7 +1,5 @@
 # Project specific values
 IMAGE_NAME ?= osd-cluster-ready
-# Extra Lint Config
-GOLANGCI_OPTIONAL_CONFIG = ./.golangci.yml
 
 .PHONY: boilerplate-update
 boilerplate-update:
