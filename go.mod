@@ -73,7 +73,7 @@ require (
 	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible // indirect
 	github.com/openshift/client-go v0.0.0-20220603133046-984ee5ebedcf // indirect
 	github.com/openshift/cloud-credential-operator v0.0.0-20230113212143-e33c59ec4c26 // indirect
-	github.com/openshift/custom-domains-operator v0.0.0-20221118201157-bd1052dac818 // indirect
+	github.com/openshift/custom-domains-operator 252eec9b56b1 // indirect
 	github.com/openshift/must-gather-operator v0.1.2-0.20221011152618-7805956e1ded // indirect
 	github.com/openshift/rosa v1.2.12 // indirect
 	github.com/openshift/route-monitor-operator v0.0.0-20221118160357-3df1ed1fa1d2 // indirect
