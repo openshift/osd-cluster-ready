@@ -70,7 +70,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.7.0 // indirect
 	github.com/onsi/gomega v1.25.0 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.311 // indirect
-	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible // indirect
+	github.com/openshift/api b7d0ca2f7643 // indirect
 	github.com/openshift/client-go v0.0.0-20220603133046-984ee5ebedcf // indirect
 	github.com/openshift/cloud-credential-operator v0.0.0-20230113212143-e33c59ec4c26 // indirect
 	github.com/openshift/custom-domains-operator v0.0.0-20221118201157-bd1052dac818 // indirect
@@ -135,7 +135,7 @@ require (
 
 replace (
 	// pin the openshift-api version
-	github.com/openshift/api => github.com/openshift/api v0.0.0-20221013123534-96eec44e1979
+	github.com/openshift/api => github.com/openshift/api b7d0ca2f7643
 
 	// pin the client-go version
 	k8s.io/client-go => k8s.io/client-go v0.26.0
