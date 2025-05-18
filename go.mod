@@ -97,7 +97,7 @@ require (
 	github.com/subosito/gotenv v1.4.2 // indirect
 	github.com/vmware-tanzu/velero v1.7.2 // indirect
 	github.com/zgalor/weberr v0.6.0 // indirect
-	gitlab.com/c0b/go-ordered-json v0.0.0-20171130231205-49bbdab258c2 // indirect
+	gitlab.com/c0b/go-ordered-json febf46534d5a // indirect
 	go.opencensus.io v0.24.0 // indirect
 	go.opentelemetry.io/contrib/instrumentation/net/http/otelhttp v0.47.0 // indirect
 	go.opentelemetry.io/otel v1.22.0 // indirect
