@@ -4,7 +4,7 @@ go 1.23.0
 
 toolchain go1.23.8
 
-require github.com/openshift/osde2e v0.0.0-20230123144440-f4c32750ad62
+require github.com/openshift/osde2e 073741a71348
 
 require (
 	cloud.google.com/go/compute v1.24.0 // indirect
