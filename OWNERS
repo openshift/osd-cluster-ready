@@ -1,13 +1,10 @@
 reviewers:
-- 2uasimojo
-- iamkirkbater
-- jharrington22
-- srep-functional-team-hulk
+- srep-functional-team-rocket
+- srep-functional-leads
 approvers:
-- iamkirkbater
-- jharrington22
+- srep-functional-leads
 - srep-team-leads
 maintainers:
-- 2uasimojo
+- clcollins
 - iamkirkbater
 - jharrington22
