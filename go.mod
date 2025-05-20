@@ -76,7 +76,7 @@ require (
 	github.com/openshift/custom-domains-operator v0.0.0-20221118201157-bd1052dac818 // indirect
 	github.com/openshift/must-gather-operator v0.1.2-0.20221011152618-7805956e1ded // indirect
 	github.com/openshift/rosa v1.2.12 // indirect
-	github.com/openshift/route-monitor-operator v0.0.0-20221118160357-3df1ed1fa1d2 // indirect
+	github.com/openshift/route-monitor-operator 41c27997c726 // indirect
 	github.com/operator-framework/api v0.17.1 // indirect
 	github.com/operator-framework/operator-lifecycle-manager v0.22.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.0.6 // indirect
