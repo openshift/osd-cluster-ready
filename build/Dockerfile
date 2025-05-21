@@ -1,4 +1,4 @@
-FROM registry.ci.openshift.org/openshift/release:golang-1.21 as builder
+FROM quay.io/redhat-services-prod/openshift/boilerplate:image-v7.3.0 as builder
 
 WORKDIR /go/src/osd-cluster-ready
 COPY go.mod go.sum ./
