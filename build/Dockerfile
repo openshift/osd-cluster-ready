@@ -7,5 +7,11 @@ COPY . .
 RUN make build
 
 FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-24
+WORKDIR /
 
-COPY --from=builder /go/src/osd-cluster-ready/bin/main /root/
+RUN mkdir /licenses
+COPY --from=builder /go/src/osd-cluster-ready/LICENSE /licenses/.
+COPY --from=builder /go/src/osd-cluster-ready/bin/main /osd-cluster-ready
+
+USER 65532:65532
+ENTRYPOINT ["/osd-cluster-ready"]
