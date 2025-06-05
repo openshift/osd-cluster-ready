@@ -12,6 +12,5 @@ spec:
             - name: osd-cluster-ready
               image: quay.io/openshift-sre/osd-cluster-ready
               imagePullPolicy: Always
-              command: ["/root/main"]
             restartPolicy: OnFailure
             serviceAccountName: osd-cluster-ready
