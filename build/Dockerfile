@@ -6,7 +6,7 @@ RUN go mod download
 COPY . .
 RUN make build
 
-FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-24
+FROM registry.access.redhat.com/ubi8/ubi-micro:8.10-26
 WORKDIR /
 
 RUN mkdir /licenses
