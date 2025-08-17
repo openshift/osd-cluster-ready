@@ -63,7 +63,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.3 // indirect
 	github.com/onsi/gomega v1.36.3 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.465 // indirect
-	github.com/openshift/api v3.9.1-0.20190924102528-32369d4db2ad+incompatible // indirect
+	github.com/openshift/api 998cd533c060 // indirect
 	github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2 // indirect
 	github.com/openshift/osde2e-common v0.0.0-20250508181513-627144b7607a // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
@@ -115,6 +115,6 @@ require (
 
 replace (
 	// pin the openshift-api version
-	github.com/openshift/api => github.com/openshift/api v0.0.0-20250409155250-8fcc4e71758a
+	github.com/openshift/api => github.com/openshift/api 998cd533c060
 	k8s.io/client-go => k8s.io/client-go v0.32.3
 )
