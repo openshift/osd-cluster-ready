@@ -73,7 +73,7 @@ require (
 	github.com/openshift-online/ocm-api-model/model v0.0.426 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.473 // indirect
 	github.com/openshift/api v0.0.0-20250811113315-c2dfb51e2d06 // indirect
-	github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2 // indirect
+	github.com/openshift/client-go v0.0.0-20250513150353-9ea84fa6431b // indirect
 	github.com/openshift/osde2e-common v0.0.0-20250804130535-082bd8035ce8 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect

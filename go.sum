@@ -182,8 +182,8 @@ github.com/openshift-online/ocm-sdk-go v0.1.473 h1:m/NWIBCzhC/8PototMQ7x8MQXCeSL
 github.com/openshift-online/ocm-sdk-go v0.1.473/go.mod h1:5Gw/YZE+c5FAPaBtO1w/asd9qbs2ljQwg7fpVq51UW4=
 github.com/openshift/api v0.0.0-20250409155250-8fcc4e71758a h1:d2WEiysc+Gx51E5pQUvB5CHuXiUTsuZdKZNPHkGAZZg=
 github.com/openshift/api v0.0.0-20250409155250-8fcc4e71758a/go.mod h1:yk60tHAmHhtVpJQo3TwVYq2zpuP70iJIFDCmeKMIzPw=
-github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2 h1:bPXR0R8zp1o12nSUphN26hSM+OKYq5pMorbDCpApzDQ=
-github.com/openshift/client-go v0.0.0-20250402181141-b3bad3b645f2/go.mod h1:dT1cJyVTperQ53GvVRa+GZ27r02fDZy2k5j+9QoQsCo=
+github.com/openshift/client-go v0.0.0-20250513150353-9ea84fa6431b h1:ffS7iyeXP5PdiiVVssk2GCP6PqrVR4LdCdrKRcI+ogM=
+github.com/openshift/client-go v0.0.0-20250513150353-9ea84fa6431b/go.mod h1:ic71V3s+SXPaFMRd80eZhNvjEWom7s61GXE2wmYCfOI=
 github.com/openshift/osde2e v0.0.0-20250823090328-a6f5146cb529 h1:J38g6etX4Q59WQpvszGNhVQ4TWxa3ixGswC/0rwJ2eE=
 github.com/openshift/osde2e v0.0.0-20250823090328-a6f5146cb529/go.mod h1:FhsvdLbTdTwHuxHuiU5e43mfKBea2eou+iPB3dNtESc=
 github.com/openshift/osde2e-common v0.0.0-20250804130535-082bd8035ce8 h1:ZjJP+ZKLYyUxrlV4FSXM+S174R2Y/9eNaJmptFr9VV8=
