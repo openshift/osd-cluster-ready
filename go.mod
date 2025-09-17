@@ -4,7 +4,7 @@ go 1.24.0
 
 toolchain go1.24.6
 
-require github.com/openshift/osde2e v0.0.0-20250823090328-a6f5146cb529
+require github.com/openshift/osde2e v0.0.0-20250913085801-81d4568ff9d3
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
