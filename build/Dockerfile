@@ -6,7 +6,7 @@ RUN go mod download
 COPY . .
 RUN make build
 
-FROM registry.access.redhat.com/ubi9/ubi-micro:9.6-1754467928
+FROM registry.access.redhat.com/ubi9/ubi-micro:9.6-1758714456
 WORKDIR /
 
 RUN mkdir /licenses
