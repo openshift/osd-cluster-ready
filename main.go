@@ -44,7 +44,7 @@ func main() {
 	for {
 		healthy, err := isClusterHealthy(cluster.PollClusterHealth, cleanCheckRuns, cleanCheckInterval)
 		if err != nil {
-			log.Fatal(err)
+			log.Printf("Health check returned error (will retry): %v\n", err)
 		}
 		if healthy {
 			os.Exit(0)
@@ -53,8 +53,6 @@ func main() {
 		log.Printf("Health checks failed. Sleeping %d seconds before rechecking...\n", failedCheckInterval)
 		time.Sleep(time.Duration(failedCheckInterval) * time.Second)
 	}
-
-	// UNREACHED
 }
 
 // getEnvInt returns the integer value of the environment variable with the specified `key`.
@@ -100,14 +98,19 @@ func doHealthCheck(pollClusterHealth func(string, *log.Logger) (bool, []string, 
 }
 
 // isClusterHealthy runs health checks multiple times, succeeding only if checks pass the requisite
-// number of consecutive times. We return failure immediately if any check fails, or if an error
-// occurs.
+// number of consecutive times. If any check fails or errors, the consecutive counter resets and
+// we return to the caller to retry after a sleep.
 func isClusterHealthy(pollClusterHealth func(string, *log.Logger) (bool, []string, error), cleanCheckRuns, cleanCheckInterval int) (bool, error) {
 	for i := 1; i <= cleanCheckRuns; i++ {
 		log.Printf("======== Health Checks: %d of %d ========\n", i, cleanCheckRuns)
 		healthy, err := doHealthCheck(pollClusterHealth)
-		if !healthy || err != nil {
-			return healthy, err
+		if err != nil {
+			log.Printf("Health check error, resetting consecutive counter: %v\n", err)
+			return false, err
+		}
+		if !healthy {
+			log.Printf("Health check failed, resetting consecutive counter\n")
+			return false, nil
 		}
 		log.Printf("Sleeping %d seconds...\n", cleanCheckInterval)
 		time.Sleep(time.Duration(cleanCheckInterval) * time.Second)
