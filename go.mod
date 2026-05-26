@@ -7,7 +7,7 @@ require github.com/openshift/osde2e v0.0.0-20250913085801-81d4568ff9d3
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
 	github.com/adamliesko/retry v0.0.0-20200123222335-86c8baac277d // indirect
-	github.com/aws/aws-sdk-go v1.55.6 // indirect
+	github.com/aws/aws-sdk-go v1.55.8 // indirect
 	github.com/aws/aws-sdk-go-v2 v1.37.1 // indirect
 	github.com/aws/aws-sdk-go-v2/config v1.30.2 // indirect
 	github.com/aws/aws-sdk-go-v2/credentials v1.18.2 // indirect
