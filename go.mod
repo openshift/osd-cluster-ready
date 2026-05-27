@@ -68,7 +68,7 @@ require (
 	github.com/onsi/ginkgo/v2 v2.23.4 // indirect
 	github.com/onsi/gomega v1.38.0 // indirect
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.426 // indirect
-	github.com/openshift-online/ocm-api-model/model v0.0.426 // indirect
+	github.com/openshift-online/ocm-api-model/model v0.0.456 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.473 // indirect
 	github.com/openshift/api v0.0.0-20250522163634-998cd533c060 // indirect
 	github.com/openshift/client-go v0.0.0-20250513150353-9ea84fa6431b // indirect
