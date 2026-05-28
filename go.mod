@@ -105,8 +105,8 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/ini.v1 v1.67.2 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
-	k8s.io/api v0.33.2 // indirect
-	k8s.io/apimachinery v0.33.2 // indirect
+	k8s.io/api v0.36.1 // indirect
+	k8s.io/apimachinery v0.36.1 // indirect
 	k8s.io/client-go v12.0.0+incompatible // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
 	k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff // indirect
@@ -122,5 +122,5 @@ require (
 replace (
 	// pin the openshift-api version
 	github.com/openshift/api => github.com/openshift/api v0.0.0-20250409155250-8fcc4e71758a
-	k8s.io/client-go => k8s.io/client-go v0.32.3
+	k8s.io/client-go => k8s.io/client-go v0.36.1
 )
