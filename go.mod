@@ -2,7 +2,7 @@ module github.com/openshift/osd-cluster-ready
 
 go 1.25.8
 
-require github.com/openshift/osde2e v0.0.0-20250913085801-81d4568ff9d3
+require github.com/openshift/osde2e eadad3d23611
 
 require (
 	github.com/Masterminds/semver/v3 v3.4.0 // indirect
@@ -44,7 +44,7 @@ require (
 	github.com/golang/protobuf v1.5.4 // indirect
 	github.com/google/gnostic-models v0.6.9 // indirect
 	github.com/google/go-cmp v0.7.0 // indirect
-	github.com/google/pprof v0.0.0-20250403155104-27863c87afa6 // indirect
+	github.com/google/pprof 92041b743c96 // indirect
 	github.com/google/uuid v1.6.0 // indirect
 	github.com/gorilla/css v1.0.1 // indirect
 	github.com/gorilla/websocket v1.5.3 // indirect
@@ -70,9 +70,9 @@ require (
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.456 // indirect
 	github.com/openshift-online/ocm-api-model/model v0.0.456 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.501 // indirect
-	github.com/openshift/api v0.0.0-20250522163634-998cd533c060 // indirect
-	github.com/openshift/client-go v0.0.0-20250513150353-9ea84fa6431b // indirect
-	github.com/openshift/osde2e-common v0.0.0-20250804130535-082bd8035ce8 // indirect
+	github.com/openshift/api d6ce07951593 // indirect
+	github.com/openshift/client-go deb4dc54551a // indirect
+	github.com/openshift/osde2e-common b07512784467 // indirect
 	github.com/pelletier/go-toml/v2 v2.2.2 // indirect
 	github.com/pkg/errors v0.9.1 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
@@ -92,7 +92,7 @@ require (
 	go.uber.org/automaxprocs v1.6.0 // indirect
 	go.uber.org/multierr v1.11.0 // indirect
 	go.yaml.in/yaml/v2 v2.4.2 // indirect
-	golang.org/x/exp v0.0.0-20250408133849-7e4ce0ab07d0 // indirect
+	golang.org/x/exp 08cc5374adb3 // indirect
 	golang.org/x/net v0.43.0 // indirect
 	golang.org/x/oauth2 v0.30.0 // indirect
 	golang.org/x/sys v0.35.0 // indirect
@@ -109,11 +109,11 @@ require (
 	k8s.io/apimachinery v0.33.2 // indirect
 	k8s.io/client-go v12.0.0+incompatible // indirect
 	k8s.io/klog/v2 v2.130.1 // indirect
-	k8s.io/kube-openapi v0.0.0-20250318190949-c8a335a9a2ff // indirect
-	k8s.io/utils v0.0.0-20250321185631-1f6e0b77f77e // indirect
+	k8s.io/kube-openapi aa012df4f4af // indirect
+	k8s.io/utils ff6756f316d2 // indirect
 	sigs.k8s.io/controller-runtime v0.20.2 // indirect
 	sigs.k8s.io/e2e-framework v0.5.0 // indirect
-	sigs.k8s.io/json v0.0.0-20241014173422-cfa47c3a1cc8 // indirect
+	sigs.k8s.io/json 2d320260d730 // indirect
 	sigs.k8s.io/randfill v1.0.0 // indirect
 	sigs.k8s.io/structured-merge-diff/v4 v4.6.0 // indirect
 	sigs.k8s.io/yaml v1.4.0 // indirect
@@ -121,6 +121,6 @@ require (
 
 replace (
 	// pin the openshift-api version
-	github.com/openshift/api => github.com/openshift/api v0.0.0-20250409155250-8fcc4e71758a
+	github.com/openshift/api => github.com/openshift/api d6ce07951593
 	k8s.io/client-go => k8s.io/client-go v0.32.3
 )
