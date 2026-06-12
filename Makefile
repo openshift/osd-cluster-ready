@@ -1,6 +1,9 @@
 # Project specific values
 IMAGE_NAME ?= osd-cluster-ready
 
+# Prow scan image may lag; go.mod requires 1.25.10+ for govulncheck stdlib fixes.
+export GOTOOLCHAIN=go1.25.11+auto
+
 .PHONY: boilerplate-update
 boilerplate-update:
 	@boilerplate/update

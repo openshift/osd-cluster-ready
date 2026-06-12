@@ -4,12 +4,12 @@
 # =============================================================================
 aliases:
   srep-functional-team-aurora:
-    - abyrne55
     - AlexSmithGH
+    - BATMAN-JD
     - dakotalongRH
     - eth1030
+    - geowa4
     - joshbranham
-    - luis-falcon
     - reedcort
   srep-functional-team-fedramp:
     - theautoroboto
@@ -26,7 +26,6 @@ aliases:
     - cjnovak98
   srep-functional-team-hulk:
     - ravitri
-    - devppratik
     - Tafhim
     - tkong-redhat
     - TheUndeadKing
@@ -43,7 +42,7 @@ aliases:
     - rolandmkunkel
     - petrkotas
     - zmird-r
-    - hectorakemp
+    - gvnnn
   srep-functional-team-rocket:
     - aliceh
     - anispate
@@ -61,7 +60,6 @@ aliases:
     - casey-williams-rh
     - boranx
   srep-functional-team-thor:
-    - a7vicky
     - diakovnec
     - MitaliBhalla
     - feichashao
@@ -74,7 +72,6 @@ aliases:
     - yiqinzhang
     - varunraokadaparthi
   srep-functional-leads:
-    - abyrne55
     - clcollins
     - bergmannf
     - theautoroboto
@@ -83,10 +80,7 @@ aliases:
     - ravitri
   srep-team-leads:
     - rafael-azevedo
-    - iamkirkbater
-    - rogbas
     - dustman9000
-    - bng0y
     - bmeng
     - typeid
   sre-group-leads:
@@ -94,5 +88,4 @@ aliases:
     - maorfr
     - rogbas
   srep-architects:
-    - jharrington22
     - cblecker
