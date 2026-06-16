@@ -1,0 +1,38 @@
+configManager:
+  source: {{ .ProviderSource }}
+  ocmBaseUrl: {{ .ProviderEnvironmentUrl }}
+  watchInterval: {{ .ProviderWatchInterval }}
+  localConfigName: managed-upgrade-config
+maintenance:
+  controlPlaneTime: {{ .ControlPlaneTime }}
+  ignoredAlerts:
+  controlPlaneCriticals:
+  # ClusterOperatorDown - OSD-6330
+  - ClusterOperatorDown
+  # ClusterOperatorDown - OSD-6330
+  - ClusterOperatorDegraded
+scale:
+  timeOut: {{ .ScaleTimeout }}
+upgradeWindow:
+  timeOut: {{ .UpgradeWindow }}
+nodeDrain:
+  timeOut: {{ .NodeDrainTimeout }}
+  expectedNodeDrainTime: {{ .ExpectedDrainTime }}
+healthCheck:
+  ignoredCriticals:
+  - DNSErrors05MinSRE
+  - MetricsClientSendFailingSRE
+  - UpgradeNodeScalingFailedSRE
+  - UpgradeClusterCheckFailedSRE
+  - PrometheusRuleFailures
+  - CannotRetrieveUpdates
+  - FluentdNodeDown
+  - PruningCronjobErrorSRE
+  ignoredNamespaces:
+  - openshift-logging
+  - openshift-redhat-marketplace
+  - openshift-operators
+  - openshift-customer-monitoring
+  - openshift-route-monitor-operator                                                                                                                                      
+  - openshift-user-workload-monitoring
+  - openshift-pipelines
