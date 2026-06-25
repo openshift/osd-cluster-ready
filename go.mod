@@ -79,27 +79,27 @@ require (
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.458 // indirect
 	github.com/openshift-online/ocm-api-model/model v0.0.458 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.503 // indirect
-	github.com/openshift/api v0.0.0-20260623101811-c5eb460d04e3 // indirect
+	github.com/openshift/api 50c3975e874f // indirect
 	github.com/openshift/client-go v0.0.0-20260622130833-df412d4d283e // indirect
 	github.com/openshift/osde2e-common v0.0.0-20260618165637-751e0d23bb9d // indirect
-	github.com/operator-framework/api v0.30.0 // indirect
-	github.com/operator-framework/operator-lifecycle-manager v0.22.0 // indirect
+	github.com/operator-framework/api v0.44.0 // indirect
+	github.com/operator-framework/operator-lifecycle-manager v0.45.0 // indirect
 	github.com/pelletier/go-toml/v2 v2.4.0 // indirect
-	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.74.0 // indirect
-	github.com/prometheus-operator/prometheus-operator/pkg/client v0.74.0 // indirect
+	github.com/prometheus-operator/prometheus-operator/pkg/apis/monitoring v0.92.0 // indirect
+	github.com/prometheus-operator/prometheus-operator/pkg/client v0.92.0 // indirect
 	github.com/prometheus/client_golang v1.23.2 // indirect
 	github.com/prometheus/client_model v0.6.2 // indirect
 	github.com/prometheus/common v0.69.0 // indirect
 	github.com/prometheus/procfs v0.20.1 // indirect
 	github.com/sagikazarmark/locafero v0.12.0 // indirect
-	github.com/sirupsen/logrus v1.9.3 // indirect
+	github.com/sirupsen/logrus v1.9.4 // indirect
 	github.com/skratchdot/open-golang v0.0.0-20200116055534-eef842397966 // indirect
 	github.com/spf13/afero v1.15.0 // indirect
 	github.com/spf13/cast v1.10.0 // indirect
 	github.com/spf13/pflag v1.0.10 // indirect
 	github.com/spf13/viper v1.21.0 // indirect
 	github.com/subosito/gotenv v1.6.0 // indirect
-	github.com/vmware-tanzu/velero v1.10.2 // indirect
+	github.com/vmware-tanzu/velero v1.18.1 // indirect
 	github.com/x448/float16 v0.8.4 // indirect
 	go.yaml.in/yaml/v2 v2.4.4 // indirect
 	go.yaml.in/yaml/v3 v3.0.4 // indirect
@@ -117,7 +117,7 @@ require (
 	gopkg.in/inf.v0 v0.9.1 // indirect
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.36.2 // indirect
-	k8s.io/apiextensions-apiserver v0.36.0 // indirect
+	k8s.io/apiextensions-apiserver v0.36.2 // indirect
 	k8s.io/apimachinery v0.36.2 // indirect
 	k8s.io/client-go v12.0.0+incompatible // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
@@ -134,6 +134,6 @@ require (
 
 replace (
 	// pin the openshift-api version
-	github.com/openshift/api => github.com/openshift/api v0.0.0-20260623101811-c5eb460d04e3
+	github.com/openshift/api => github.com/openshift/api 50c3975e874f
 	k8s.io/client-go => k8s.io/client-go v0.36.2
 )
