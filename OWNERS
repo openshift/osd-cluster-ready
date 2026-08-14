@@ -1,9 +1,8 @@
 reviewers:
 - srep-functional-team-rocket
-- srep-functional-leads
+- rosa-staff-engineers
 approvers:
-- srep-functional-leads
-- srep-team-leads
+- rosa-staff-engineers
 maintainers:
 - clcollins
 - drow
