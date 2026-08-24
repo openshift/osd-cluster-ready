@@ -6,8 +6,6 @@ import (
 	"os"
 	"strconv"
 	"time"
-
-	"github.com/openshift/osde2e/pkg/common/cluster"
 )
 
 const (
@@ -42,7 +40,7 @@ func main() {
 	}
 
 	for {
-		healthy, err := isClusterHealthy(cluster.PollClusterHealth, cleanCheckRuns, cleanCheckInterval)
+		healthy, err := isClusterHealthy(pollClusterHealth, cleanCheckRuns, cleanCheckInterval)
 		if err != nil {
 			log.Printf("Health check returned error (will retry): %v\n", err)
 		}

@@ -2,7 +2,14 @@ module github.com/openshift/osd-cluster-ready
 
 go 1.26.0
 
-require github.com/openshift/osde2e v0.0.0-20260618163913-c7ae4e94e3d5
+require (
+	github.com/hashicorp/go-multierror v1.1.1
+	github.com/openshift/api v0.0.0-20260623101811-c5eb460d04e3
+	github.com/openshift/client-go v0.0.0-20260622130833-df412d4d283e
+	github.com/openshift/osde2e v0.0.0-20260618163913-c7ae4e94e3d5
+	k8s.io/apimachinery v0.36.2
+	k8s.io/client-go v12.0.0+incompatible
+)
 
 require (
 	github.com/Masterminds/semver/v3 v3.5.0 // indirect
@@ -62,7 +69,6 @@ require (
 	github.com/gorilla/websocket v1.5.4-0.20250319132907-e064f32e3674 // indirect
 	github.com/hashicorp/errwrap v1.1.0 // indirect
 	github.com/hashicorp/go-cleanhttp v0.5.2 // indirect
-	github.com/hashicorp/go-multierror v1.1.1 // indirect
 	github.com/hashicorp/go-retryablehttp v0.7.8 // indirect
 	github.com/jmespath/go-jmespath v0.4.0 // indirect
 	github.com/joshdk/go-junit v1.0.0 // indirect
@@ -79,8 +85,6 @@ require (
 	github.com/openshift-online/ocm-api-model/clientapi v0.0.458 // indirect
 	github.com/openshift-online/ocm-api-model/model v0.0.458 // indirect
 	github.com/openshift-online/ocm-sdk-go v0.1.503 // indirect
-	github.com/openshift/api v0.0.0-20260623101811-c5eb460d04e3 // indirect
-	github.com/openshift/client-go v0.0.0-20260622130833-df412d4d283e // indirect
 	github.com/openshift/osde2e-common v0.0.0-20260618165637-751e0d23bb9d // indirect
 	github.com/operator-framework/api v0.30.0 // indirect
 	github.com/operator-framework/operator-lifecycle-manager v0.22.0 // indirect
@@ -118,8 +122,6 @@ require (
 	gopkg.in/yaml.v3 v3.0.1 // indirect
 	k8s.io/api v0.36.2 // indirect
 	k8s.io/apiextensions-apiserver v0.36.0 // indirect
-	k8s.io/apimachinery v0.36.2 // indirect
-	k8s.io/client-go v12.0.0+incompatible // indirect
 	k8s.io/klog/v2 v2.140.0 // indirect
 	k8s.io/kube-openapi v0.0.0-20260618221249-bc653b64f974 // indirect
 	k8s.io/streaming v0.36.2 // indirect

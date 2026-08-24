@@ -30,3 +30,11 @@ rules:
   - clusteroperators
   verbs:
   - list
+- apiGroups:
+  - config.openshift.io
+  resources:
+  - apiservers
+  resourceNames:
+  - cluster
+  verbs:
+  - get
